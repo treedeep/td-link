@@ -1,7 +1,7 @@
 package cn.treedeep.link.protocol.v1.device.client;
 
 import cn.treedeep.link.core.protocol.v1.BaseFrame;
-import cn.treedeep.link.core.util.CRC16;
+import cn.treedeep.link.core.util.CRC;
 import cn.treedeep.link.core.util.HexUtil;
 import cn.treedeep.link.protocol.v1.device.protocol.V1;
 import cn.treedeep.link.protocol.v1.device.protocol.model.report.*;
@@ -41,12 +41,12 @@ public class DeviceFrameEncoder extends MessageToByteEncoder<BaseFrame> {
             // 计算CRC (从起始符到数据域结束)
             byte[] crcData = new byte[dataBuf.readableBytes()];
             dataBuf.getBytes(0, crcData);
-            int crc = CRC16.calculateCCITT(crcData);
+            long ccittCrc = CRC.calculateCRC(CRC.Parameters.CCITT, crcData);
 
             log.debug("设备：CRC计算范围：{}", HexUtil.formatHexString(ByteBuffer.wrap(crcData)));
 
             // 写入CRC
-            dataBuf.writeShort(crc);
+            dataBuf.writeShort((short) ccittCrc);
 
             // 写入结束符
             dataBuf.writeShort(END_FLAG);

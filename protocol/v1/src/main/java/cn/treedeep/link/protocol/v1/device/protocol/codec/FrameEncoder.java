@@ -1,8 +1,8 @@
 package cn.treedeep.link.protocol.v1.device.protocol.codec;
 
+import cn.treedeep.link.core.util.CRC;
 import cn.treedeep.link.core.util.HexUtil;
 import cn.treedeep.link.core.protocol.v1.BaseFrame;
-import cn.treedeep.link.core.util.CRC16;
 import cn.treedeep.link.protocol.v1.device.protocol.V1;
 import cn.treedeep.link.protocol.v1.device.protocol.model.response.*;
 import io.netty.buffer.ByteBuf;
@@ -50,12 +50,12 @@ public class FrameEncoder extends MessageToByteEncoder<BaseFrame> {
             // 计算CRC (从起始符到数据域结束)
             byte[] crcData = new byte[dataBuf.readableBytes()];
             dataBuf.getBytes(0, crcData);
-            int crc = CRC16.calculateCCITT(crcData);
+            long ccittCrc = CRC.calculateCRC(CRC.Parameters.CCITT, crcData);
 
             log.debug("CRC计算范围：{}", HexUtil.formatHexString(ByteBuffer.wrap(crcData)));
 
             // 写入CRC
-            dataBuf.writeShort(crc);
+            dataBuf.writeShort((short) ccittCrc);
 
             // 写入结束符
             dataBuf.writeShort(END_FLAG);
@@ -78,6 +78,10 @@ public class FrameEncoder extends MessageToByteEncoder<BaseFrame> {
         buf.writeInt(frame.getTaskId());        // 任务ID(4B)
 
         switch (frame.getCommand()) {
+            case V1.CMD_DEVICE_BIND:
+                log.debug("设备绑定下发");
+                break;
+
             case V1.RESP_DEVICE_CONNECTION:
                 log.debug("设备连接响应");
                 RespDeviceConnection connResp = (RespDeviceConnection) frame;

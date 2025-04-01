@@ -188,20 +188,31 @@ public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
     private void handleFileFrameUpload(ChannelHandlerContext ctx, ReportFileFrameUpload frame) {
         ByteBuf frameBuf = frame.getFrameData();
 
-        int deviceId = frame.getDeviceId();
-        int taskId = frame.getTaskId();
-        int frameSeq = frame.getFrameSeq();
+        try {
 
-        // 使用FileUploadManager缓存文件帧
-        fileUploadManager.cacheFileFrame(deviceId, taskId, frameSeq, frameBuf);
+            int deviceId = frame.getDeviceId();
+            int taskId = frame.getTaskId();
+            int frameSeq = frame.getFrameSeq();
 
-        // 响应文件帧上传
-        RespFileFrameUpload response = new RespFileFrameUpload(frameSeq, (byte) 1);
-        response.setDeviceId(deviceId);
-        response.setSessionId(frame.getSessionId());
+            // 使用FileUploadManager缓存文件帧
+            fileUploadManager.cacheFileFrame(deviceId, taskId, frameSeq, frameBuf);
 
-        ctx.writeAndFlush(response);
-        log.debug("文件帧上传：【设备ID：{}, 任务ID：{}, 帧序号：{}, 数据长度：{}】", deviceId, taskId, frameSeq, frameBuf.readableBytes());
+            // 响应文件帧上传
+            RespFileFrameUpload response = new RespFileFrameUpload(frameSeq, (byte) 1);
+            response.setDeviceId(deviceId);
+            response.setSessionId(frame.getSessionId());
+
+            ctx.writeAndFlush(response);
+            log.debug("文件帧上传：【设备ID：{}, 任务ID：{}, 帧序号：{}, 数据长度：{}】", deviceId, taskId, frameSeq, frameBuf.readableBytes());
+
+        } catch (Exception e) {
+            log.error("处理文件帧异常", e);
+        } finally {
+            // 确保释放ByteBuf
+            if (frameBuf.refCnt() > 0) {
+                frameBuf.release();
+            }
+        }
     }
 
     private void handleFileUploadEnd(ChannelHandlerContext ctx, ReportFileUploadEnd end) {

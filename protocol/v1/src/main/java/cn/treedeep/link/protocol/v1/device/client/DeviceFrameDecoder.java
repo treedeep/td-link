@@ -1,7 +1,7 @@
 package cn.treedeep.link.protocol.v1.device.client;
 
 import cn.treedeep.link.core.protocol.v1.BaseFrame;
-import cn.treedeep.link.core.util.CRC16;
+import cn.treedeep.link.core.util.CRC;
 import cn.treedeep.link.core.util.HexUtil;
 import cn.treedeep.link.protocol.v1.device.protocol.V1;
 import cn.treedeep.link.protocol.v1.device.protocol.model.command.*;
@@ -80,7 +80,7 @@ public class DeviceFrameDecoder extends ByteToMessageDecoder {
             ByteBuf data = in.readSlice(dataLength).copy();
 
             // 读取CRC校验
-            int crcReceived = in.readShort() & 0xFFFF;
+            long crcReceived = in.readShort() & 0xFFFFL;
 
             // 读取结束符
             short endFlag = in.readShort();
@@ -101,12 +101,12 @@ public class DeviceFrameDecoder extends ByteToMessageDecoder {
             in.readBytes(crcData, 0, totalLength - TAIL_SIZE);
             log.debug("设备：CRC计算范围：{}", HexUtil.formatHexString(ByteBuffer.wrap(crcData)));
 
-            int crcCalculated = CRC16.calculateCCITT(crcData);
+            long ccittCrc = CRC.calculateCRC(CRC.Parameters.CCITT, crcData);
 
-            if (crcReceived != crcCalculated) {
+            if (crcReceived != ccittCrc) {
                 log.error("设备：CRC校验失败! 接收: 0x{} ≠ 计算: 0x{}",
-                        Integer.toHexString(crcReceived).toUpperCase(),
-                        Integer.toHexString(crcCalculated).toUpperCase());
+                        Long.toHexString(crcReceived).toUpperCase(),
+                        Long.toHexString(ccittCrc).toUpperCase());
 
                 // 清空整个ByteBuf
                 in.clear();

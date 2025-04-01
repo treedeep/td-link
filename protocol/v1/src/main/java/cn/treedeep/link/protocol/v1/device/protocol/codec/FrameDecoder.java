@@ -1,7 +1,7 @@
 package cn.treedeep.link.protocol.v1.device.protocol.codec;
 
 import cn.treedeep.link.core.protocol.v1.BaseFrame;
-import cn.treedeep.link.core.util.CRC16;
+import cn.treedeep.link.core.util.CRC;
 import cn.treedeep.link.core.util.HexUtil;
 import cn.treedeep.link.protocol.v1.device.protocol.V1;
 import cn.treedeep.link.protocol.v1.device.protocol.model.report.*;
@@ -30,6 +30,17 @@ import static cn.treedeep.link.core.protocol.v1.Protocol.START_FLAG;
 public class FrameDecoder extends ByteToMessageDecoder {
     private static final int HEADER_SIZE = 2 + 1 + 2 + 1;   // 起始符(2B)+版本(1B)+长度(2B)+指令类型(1B)
     private static final int TAIL_SIZE = 2 + 2;             // CRC16(2B)+结束符(2B)
+
+    private static final int DEFAULT_MAX_FRAME_SIZE = 2 * 1024 * 1024; // 默认最大帧大小2MB
+    private final int maxFrameSize;
+
+    public FrameDecoder() {
+        this(DEFAULT_MAX_FRAME_SIZE);
+    }
+
+    public FrameDecoder(int maxFrameSize) {
+        this.maxFrameSize = maxFrameSize;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
@@ -89,7 +100,7 @@ public class FrameDecoder extends ByteToMessageDecoder {
             ByteBuf data = in.readSlice(dataLength).copy();
 
             // 读取CRC校验
-            int crcReceived = in.readShort() & 0xFFFF;
+            long crcReceived = in.readShort() & 0xFFFFL;
 
             // 读取结束符
             short endFlag = in.readShort();
@@ -110,12 +121,12 @@ public class FrameDecoder extends ByteToMessageDecoder {
             in.readBytes(crcData, 0, totalLength - TAIL_SIZE);
             log.debug("CRC计算范围：{}", HexUtil.formatHexString(ByteBuffer.wrap(crcData)));
 
-            int crcCalculated = CRC16.calculateCCITT(crcData);
+            long ccittCrc = CRC.calculateCRC(CRC.Parameters.CCITT, crcData);
 
-            if (crcReceived != crcCalculated) {
+            if (crcReceived != ccittCrc) {
                 log.error("CRC校验失败! 接收: 0x{} ≠ 计算: 0x{}",
-                        Integer.toHexString(crcReceived).toUpperCase(),
-                        Integer.toHexString(crcCalculated).toUpperCase());
+                        Long.toHexString(crcReceived).toUpperCase(),
+                        Long.toHexString(ccittCrc).toUpperCase());
 
                 // 清空整个ByteBuf
                 in.clear();

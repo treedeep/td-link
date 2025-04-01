@@ -84,9 +84,15 @@ public class DeviceSimulator {
         startTime = System.currentTimeMillis();
 
         try (FileInputStream fis = new FileInputStream(videoFile)) {
-            ByteBuf buffer = channel.alloc().directBuffer(8192);
+
+            // 对于局域网或高速网络，可以考虑使用128KB或256KB
+            // 对于互联网传输，64KB通常是个不错的平衡点
+            // 如果设备内存有限，可以使用较小的值如32KB
+            // 8192
+            int bufferSize = 8192;
+            ByteBuf buffer = channel.alloc().directBuffer(bufferSize);
             int frameSeq = 0;
-            byte[] readBuffer = new byte[8192];
+            byte[] readBuffer = new byte[bufferSize];
             int bytesRead;
 
             log.info("设备【{}】开始读取文件: {}，文件大小: {}字节", deviceId, videoFile.getName(), videoFile.length());

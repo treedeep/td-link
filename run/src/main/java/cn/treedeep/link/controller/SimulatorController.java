@@ -2,12 +2,14 @@ package cn.treedeep.link.controller;
 
 import cn.treedeep.link.protocol.v1.device.client.DeviceSimulator;
 import cn.treedeep.link.protocol.v1.device.client.SimulatorManager;
+import cn.treedeep.link.protocol.v1.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright © 深圳市树深计算机系统有限公司 版权所有
@@ -21,12 +23,15 @@ import java.util.Map;
 @RequestMapping("/api/simulator")
 public class SimulatorController {
 
+    private final DeviceService commandService;
     private final SimulatorManager simulatorManager;
 
     @Autowired
-    public SimulatorController(SimulatorManager simulatorManager) {
+    public SimulatorController(SimulatorManager simulatorManager, DeviceService commandService) {
+        this.commandService = commandService;
         this.simulatorManager = simulatorManager;
     }
+
 
     /**
      * 创建新的设备模拟器
@@ -72,7 +77,7 @@ public class SimulatorController {
         return ResponseEntity.ok("文件上传指令已发送");
     }
 
-       /**
+    /**
      * 获取模拟器状态
      */
     @GetMapping("/{deviceId}/status")
@@ -108,4 +113,56 @@ public class SimulatorController {
         simulatorManager.removeAllSimulators();
         return ResponseEntity.ok("所有模拟器已删除");
     }
+
+    /**
+     * 四合一功能：创建设备、获取列表、连接设备、绑定任务
+     *
+     * @param count     要创建的设备数量
+     * @param minTaskId 任务ID最小值
+     * @param maxTaskId 任务ID最大值
+     * @return 创建的设备和绑定的任务信息
+     */
+    @GetMapping("/setup-all")
+    public ResponseEntity<Map<String, Object>> setupAllDevices(@RequestParam int count) throws InterruptedException {
+
+        List<Map<String, Object>> deviceInfoList = new ArrayList<>();
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+
+        // 生成随机设备ID的起始值
+        int startDeviceId = random.nextInt(1000, 10000);
+
+        // 批量创建设备
+        List<DeviceSimulator> simulators = simulatorManager.batchCreateSimulators(startDeviceId, count);
+
+        // 连接设备并绑定任务
+        for (DeviceSimulator simulator : simulators) {
+            int deviceId = simulator.getDeviceId();
+
+            // 连接设备
+            simulatorManager.connectDevice(deviceId);
+
+            // 随机生成任务ID
+            int taskId = random.nextInt(1, 100 + 1);
+
+            // 绑定任务
+            TimeUnit.MILLISECONDS.sleep(1000);
+            commandService.deviceBind(deviceId, taskId);
+
+            // 收集设备信息
+            Map<String, Object> deviceInfo = new HashMap<>();
+            deviceInfo.put("deviceId", deviceId);
+            deviceInfo.put("taskId", taskId);
+            deviceInfo.put("status", simulator.getStatus());
+
+            deviceInfoList.add(deviceInfo);
+        }
+
+        // 构建返回结果
+        Map<String, Object> result = new HashMap<>();
+        result.put("totalDevices", count);
+        result.put("devices", deviceInfoList);
+
+        return ResponseEntity.ok(result);
+    }
+
 }
