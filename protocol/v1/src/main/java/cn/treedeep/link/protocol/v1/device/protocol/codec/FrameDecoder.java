@@ -92,8 +92,8 @@ public class FrameDecoder extends ByteToMessageDecoder {
                 return;
             }
 
-            // 读取指令类型
-            byte cmdType = in.readByte();
+            // 读取指令类
+            byte command = in.readByte();
 
             // 读取数据域
             int dataLength = totalLength - HEADER_SIZE - TAIL_SIZE;
@@ -140,13 +140,13 @@ public class FrameDecoder extends ByteToMessageDecoder {
             in.skipBytes(totalLength);
 
             // 打印详细的日志
-            log.debug("帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(cmdType & 0xFF).toUpperCase());
+            log.debug("帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(command & 0xFF).toUpperCase());
             log.debug("帧数据：{}", HexUtil.formatHexString(data));
 
             // 解析协议对象
             try {
                 int extLength = totalLength - (HEADER_SIZE + TAIL_SIZE + 10);
-                BaseFrame frame = parseFrame(cmdType, data, extLength);
+                BaseFrame frame = parseFrame(command, data, extLength);
                 out.add(frame);
             } catch (Exception e) {
                 log.error("解析帧异常", e);

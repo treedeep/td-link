@@ -38,7 +38,6 @@ public class NettyServer {
     }
 
     public void start() throws InterruptedException {
-
         Class<? extends ServerChannel> channelClass;
 
         if (Epoll.isAvailable()) {
