@@ -140,7 +140,7 @@ public class FrameDecoder extends ByteToMessageDecoder {
             in.skipBytes(totalLength);
 
             // 打印详细的日志
-            log.info("帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(cmdType & 0xFF).toUpperCase());
+            log.debug("帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(cmdType & 0xFF).toUpperCase());
             log.debug("帧数据：{}", HexUtil.formatHexString(data));
 
             // 解析协议对象

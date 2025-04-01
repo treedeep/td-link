@@ -120,7 +120,7 @@ public class DeviceFrameDecoder extends ByteToMessageDecoder {
             in.skipBytes(totalLength);
 
             // 打印详细的日志
-            log.info("设备：帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(command & 0xFF).toUpperCase());
+            log.debug("设备：帧信息:【总长度：{} 字节, 版本号：{}, 指令类型：0x{}】", totalLength, version, Integer.toHexString(command & 0xFF).toUpperCase());
             log.debug("设备：数据：{}", HexUtil.formatHexString(data));
 
             // 解析协议对象
