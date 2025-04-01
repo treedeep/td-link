@@ -17,7 +17,6 @@ import java.util.List;
 import static cn.treedeep.link.core.protocol.v1.Protocol.END_FLAG;
 import static cn.treedeep.link.core.protocol.v1.Protocol.START_FLAG;
 
-
 /**
  * Copyright © 深圳市树深计算机系统有限公司 版权所有
  *
@@ -30,17 +29,6 @@ import static cn.treedeep.link.core.protocol.v1.Protocol.START_FLAG;
 public class FrameDecoder extends ByteToMessageDecoder {
     private static final int HEADER_SIZE = 2 + 1 + 2 + 1;   // 起始符(2B)+版本(1B)+长度(2B)+指令类型(1B)
     private static final int TAIL_SIZE = 2 + 2;             // CRC16(2B)+结束符(2B)
-
-    private static final int DEFAULT_MAX_FRAME_SIZE = 2 * 1024 * 1024; // 默认最大帧大小2MB
-    private final int maxFrameSize;
-
-    public FrameDecoder() {
-        this(DEFAULT_MAX_FRAME_SIZE);
-    }
-
-    public FrameDecoder(int maxFrameSize) {
-        this.maxFrameSize = maxFrameSize;
-    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
