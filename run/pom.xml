@@ -10,7 +10,7 @@
     </parent>
 
     <artifactId>run</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <properties>
         <java.version>21</java.version>
@@ -19,13 +19,13 @@
         <dependency>
             <groupId>cn.treedeep.link</groupId>
             <artifactId>td-link-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>
             <groupId>cn.treedeep.link</groupId>
             <artifactId>td-link-protocol-v1</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

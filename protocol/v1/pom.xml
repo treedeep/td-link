@@ -5,12 +5,12 @@
     <parent>
         <groupId>cn.treedeep.link</groupId>
         <artifactId>td-link-protocol</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>1.0.0</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>td-link-protocol-v1</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>jar</packaging>
 
     <properties>
@@ -22,7 +22,7 @@
         <dependency>
             <groupId>cn.treedeep.link</groupId>
             <artifactId>td-link-core</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -34,39 +34,23 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <skip>true</skip>
-                </configuration>
-            </plugin>
-
-            <plugin>
+            <!--<plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <executions>
                     <execution>
                         <phase>package</phase>
-                        <goals><goal>proguard</goal></goals>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <proguardVersion>${proguard.version}</proguardVersion>
-                    <!-- 是否混淆-->
                     <obfuscate>true</obfuscate>
-                    <!-- 指定生成文件分类 -->
                     <injar>${project.build.finalName}.jar</injar>
                     <outjar>${project.build.finalName}-pg.jar</outjar>
                     <proguardInclude>${project.basedir}/proguard.cfg</proguardInclude>
-                    <!-- 额外的jar包，通常是项目编译所需要的jar -->
-                    <libs>
-                        <lib>${java.home}/lib/jrt-fs.jar</lib>
-                        <lib>${java.home}/jmods/java.base.jmod</lib>
-                    </libs>
-                    <!-- 不处理 META-INF 和资源文件 -->
-                    <inLibsFilter>!META-INF/**,!**.properties,!**.xml,!**.json,!**.yml</inLibsFilter>
-                    <!-- 这是输出路径配置，但是要注意这个路径必须要包括injar标签填写的jar -->
                     <outputDirectory>${project.basedir}/target</outputDirectory>
                 </configuration>
                 <dependencies>
@@ -76,8 +60,12 @@
                         <version>${proguard.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>
+            </plugin>-->
 
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
