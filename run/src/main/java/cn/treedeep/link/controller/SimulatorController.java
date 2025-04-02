@@ -1,8 +1,8 @@
 package cn.treedeep.link.controller;
 
-import cn.treedeep.link.device.client.DeviceSimulator;
 import cn.treedeep.link.device.client.SimulatorManager;
 import cn.treedeep.link.service.DeviceService;
+import cn.treedeep.link.simulator.DeviceSimulator;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

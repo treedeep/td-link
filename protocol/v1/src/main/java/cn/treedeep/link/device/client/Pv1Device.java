@@ -1,50 +1,46 @@
 package cn.treedeep.link.device.client;
 
-import cn.treedeep.link.protocol.v1.Protocol;
-import cn.treedeep.link.util.DatetimeUtil;
+import cn.treedeep.link.device.client.codec.DeviceFrameDecoder;
+import cn.treedeep.link.device.client.codec.DeviceFrameEncoder;
 import cn.treedeep.link.device.protocol.model.report.ReportDeviceConnectionRequest;
 import cn.treedeep.link.device.protocol.model.report.ReportFileFrameUpload;
 import cn.treedeep.link.device.protocol.model.report.ReportFileUploadEnd;
 import cn.treedeep.link.device.protocol.model.report.ReportHeartbeatPacket;
+import cn.treedeep.link.protocol.v1.Protocol;
+import cn.treedeep.link.simulator.DeviceSimulator;
+import cn.treedeep.link.simulator.SimulatorStatus;
+import cn.treedeep.link.util.DatetimeUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Random;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-@Data
 @Slf4j
-public class DeviceSimulator {
-    private final int deviceId;
-    private short sessionId;
-    private int taskId;
-    private Channel channel;
-    private final EventLoopGroup group;
-    private ScheduledFuture<?> heartbeatFuture;
-    private SimulatorStatus status = SimulatorStatus.CREATED;
-    private final Random random = new Random();
+public class Pv1Device extends DeviceSimulator {
 
-    public DeviceSimulator(int deviceId) {
-        this.deviceId = deviceId;
-        this.group = new NioEventLoopGroup(1);
+    public Pv1Device(int deviceId) {
+        super(deviceId);
     }
 
+    private volatile CountDownLatch frameAckLatch;
+    private volatile int lastAckedFrameSeq = 0;
     private volatile boolean uploading = false;
+
+    private long startTime;
     private CountDownLatch uploadLatch;
 
+    @Override
     public void uploadFile(String filePath) {
         if (status != SimulatorStatus.CONNECTED) {
             log.warn("设备【{}】未连接，无法上传文件", deviceId);
@@ -77,11 +73,6 @@ public class DeviceSimulator {
         });
     }
 
-    private volatile CountDownLatch frameAckLatch;
-    private volatile int lastAckedFrameSeq = 0;
-
-    private long startTime;
-
     private void uploadVideoFile(File videoFile) throws IOException, InterruptedException {
         startTime = System.currentTimeMillis();
 
@@ -90,6 +81,7 @@ public class DeviceSimulator {
             // 对于局域网或高速网络，可以考虑使用128KB或256KB
             // 对于互联网传输，64KB通常是个不错的平衡点
             // 如果设备内存有限，可以使用较小的值如32KB
+
             // 8192
             int bufferSize = 8192;
             ByteBuf buffer = channel.alloc().directBuffer(bufferSize);
@@ -162,7 +154,7 @@ public class DeviceSimulator {
         log.info("设备【{}】文件上传完成，总帧数：{}，耗时：{}", deviceId, totalFrames, formattedDuration);
     }
 
-
+    @Override
     public void connect(String host, int port) {
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -176,7 +168,7 @@ public class DeviceSimulator {
                                     Protocol.lengthFieldBasedFrameDecoder(),
                                     new DeviceFrameDecoder(),
                                     new DeviceFrameEncoder(),
-                                    new SimulatorHandler(DeviceSimulator.this)
+                                    new SimulatorHandler(Pv1Device.this)
                             );
                         }
                     });
@@ -194,6 +186,7 @@ public class DeviceSimulator {
         }
     }
 
+    @Override
     public void disconnect() {
         stopHeartbeat();
         if (channel != null) {
@@ -241,10 +234,5 @@ public class DeviceSimulator {
         }
     }
 
-    public enum SimulatorStatus {
-        CREATED,
-        CONNECTING,
-        CONNECTED,
-        DISCONNECTED
-    }
+
 }

@@ -15,7 +15,6 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -82,11 +81,7 @@ public class NettyServer {
         }
 
         // 添加关闭钩子
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            System.out.println("Netty：正在关闭服务器...");
-            stop();
-            System.out.println("Netty：服务器已关闭");
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
 
         ServerBootstrap b = new ServerBootstrap();
         b.group(bossGroup, workerGroup)
@@ -134,7 +129,9 @@ public class NettyServer {
     }
 
     public void stop() {
+        System.out.println("Netty：正在关闭服务器...");
         bossGroup.shutdownGracefully();
         workerGroup.shutdownGracefully();
+        System.out.println("Netty：服务器已关闭");
     }
 }

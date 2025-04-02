@@ -1,6 +1,5 @@
 package cn.treedeep.link.device.client;
 
-import cn.treedeep.link.protocol.v1.BaseFrame;
 import cn.treedeep.link.device.protocol.V1;
 import cn.treedeep.link.device.protocol.model.command.CmdDeviceBind;
 import cn.treedeep.link.device.protocol.model.command.CmdDeviceUnBind;
@@ -11,6 +10,8 @@ import cn.treedeep.link.device.protocol.model.report.ReportHeartbeatPacket;
 import cn.treedeep.link.device.protocol.model.report.ReportStartRecordingResponse;
 import cn.treedeep.link.device.protocol.model.report.ReportStopRecordingResponse;
 import cn.treedeep.link.device.protocol.model.response.*;
+import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.simulator.SimulatorStatus;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,9 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
 
-    private final DeviceSimulator simulator;
+    private final Pv1Device simulator;
 
-    public SimulatorHandler(DeviceSimulator simulator) {
+    public SimulatorHandler(Pv1Device simulator) {
         this.simulator = simulator;
     }
 
@@ -74,9 +75,9 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
                 log.warn("设备 => 设备【{}】收到异常帧响应", simulator.getDeviceId());
                 break;
             default:
-                log.warn("设备 => 设备【{}】收到未支持的命令类型: 0x{}", 
-                    simulator.getDeviceId(),
-                    Integer.toHexString(frame.getCommand() & 0xFF));
+                log.warn("设备 => 设备【{}】收到未支持的命令类型: 0x{}",
+                        simulator.getDeviceId(),
+                        Integer.toHexString(frame.getCommand() & 0xFF));
         }
     }
 
@@ -124,7 +125,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
         // 生成1-100随机数
         int battery = simulator.getRandom().nextInt(100) + 1;
 
-        ReportHeartbeatPacket response = new ReportHeartbeatPacket((byte) battery,(byte) 1);
+        ReportHeartbeatPacket response = new ReportHeartbeatPacket((byte) battery, (byte) 1);
         response.setDeviceId(simulator.getDeviceId());
         response.setSessionId(simulator.getSessionId());
         response.setTaskId(simulator.getTaskId());
@@ -134,7 +135,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
     private void handleDeviceConnectionResponse(RespDeviceConnection response) {
         simulator.setSessionId(response.getSessionId());
         simulator.setTaskId(response.getTaskId());
-        simulator.setStatus(DeviceSimulator.SimulatorStatus.CONNECTED);  // 更新设备状态为已连接
+        simulator.setStatus(SimulatorStatus.CONNECTED);  // 更新设备状态为已连接
         simulator.startHeartbeat();
         log.info("设备 => 设备【{}】连接成功，会话ID：{}", simulator.getDeviceId(), response.getSessionId());
     }
@@ -145,7 +146,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        simulator.setStatus(DeviceSimulator.SimulatorStatus.DISCONNECTED);
+        simulator.setStatus(SimulatorStatus.DISCONNECTED);
         simulator.stopHeartbeat();
         log.info("设备 => 设备【{}】连接断开", simulator.getDeviceId());
     }

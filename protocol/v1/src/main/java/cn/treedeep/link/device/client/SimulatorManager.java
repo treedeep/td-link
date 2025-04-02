@@ -1,5 +1,6 @@
 package cn.treedeep.link.device.client;
 
+import cn.treedeep.link.simulator.DeviceSimulator;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +22,7 @@ public class SimulatorManager {
     private final Map<Integer, DeviceSimulator> simulators = new ConcurrentHashMap<>();
 
     public DeviceSimulator createSimulator(int deviceId) {
-        DeviceSimulator simulator = new DeviceSimulator(deviceId);
+        DeviceSimulator simulator = new Pv1Device(deviceId);
         simulators.put(deviceId, simulator);
         return simulator;
     }
