@@ -1,0 +1,134 @@
+package cn.treedeep.link.device.protocol.codec;
+
+import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.util.CRC;
+import cn.treedeep.link.util.HexUtil;
+import cn.treedeep.link.device.protocol.V1;
+import cn.treedeep.link.device.protocol.model.response.*;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.MessageToByteEncoder;
+import lombok.extern.slf4j.Slf4j;
+
+import java.nio.ByteBuffer;
+
+import static cn.treedeep.link.protocol.v1.Protocol.END_FLAG;
+import static cn.treedeep.link.protocol.v1.Protocol.START_FLAG;
+
+/**
+ * Copyright © 深圳市树深计算机系统有限公司 版权所有
+ *
+ * <p>协议编码器（服务器下发）</p>
+ *
+ * @author 周广明
+ * @since 2025/3/29 15:21
+ */
+@Slf4j
+public class FrameEncoder extends MessageToByteEncoder<BaseFrame> {
+
+    @Override
+    protected void encode(ChannelHandlerContext ctx, BaseFrame msg, ByteBuf out) throws Exception {
+        // 创建临时缓冲区计算长度
+        ByteBuf dataBuf = ctx.alloc().buffer();
+        try {
+            // 写入协议头
+            dataBuf.writeShort(START_FLAG);
+            dataBuf.writeByte(msg.getVersion());
+
+            // 占位协议总长度（后面计算）
+            dataBuf.writeShort(0);
+
+            dataBuf.writeByte(msg.getCommand());
+
+            // 写入数据域
+            writeDataContent(msg, dataBuf);
+
+            // 计算总长度并回填
+            int totalLength = dataBuf.readableBytes() + 4; // +4是CRC和结束符的长度
+            dataBuf.setShort(3, totalLength); // 设置协议总长度
+
+            // 计算CRC (从起始符到数据域结束)
+            byte[] crcData = new byte[dataBuf.readableBytes()];
+            dataBuf.getBytes(0, crcData);
+            long ccittCrc = CRC.calculateCRC(CRC.Parameters.CCITT, crcData);
+
+            log.debug("CRC计算范围：{}", HexUtil.formatHexString(ByteBuffer.wrap(crcData)));
+
+            // 写入CRC
+            dataBuf.writeShort((short) ccittCrc);
+
+            // 写入结束符
+            dataBuf.writeShort(END_FLAG);
+
+            // 打印完整帧日志
+            log.debug("发送帧:【设备ID：{}, 会话ID：{}, 指令类型：0x{}, 总长度：{} 字节】", msg.getDeviceId(), msg.getSessionId(), String.format("%02X", msg.getCommand()), totalLength);
+            log.debug(HexUtil.formatHexString(dataBuf));
+
+            // 写入输出缓冲区
+            out.writeBytes(dataBuf);
+        } finally {
+            dataBuf.release();
+        }
+    }
+
+    private void writeDataContent(BaseFrame frame, ByteBuf buf) {
+        // 写入基础字段
+        buf.writeInt(frame.getDeviceId());      // 设备ID(4B)
+        buf.writeShort(frame.getSessionId());   // 会话ID(2B)
+        buf.writeInt(frame.getTaskId());        // 任务ID(4B)
+
+        switch (frame.getCommand()) {
+            case V1.CMD_DEVICE_BIND:
+                log.debug("设备绑定下发");
+                break;
+
+            case V1.RESP_DEVICE_CONNECTION:
+                log.debug("设备连接响应");
+                RespDeviceConnection connResp = (RespDeviceConnection) frame;
+                buf.writeLong(connResp.getServerTimestamp());    // 服务器时间戳(8B)
+                break;
+
+            case V1.RESP_HEARTBEAT:
+                log.debug("心跳响应");
+                RespHeartbeat heartbeat = (RespHeartbeat) frame;
+                buf.writeLong(heartbeat.getServerTimestamp());   // 服务器时间戳(8B)
+                break;
+
+            case V1.RESP_KEYFRAME_MARK:
+                log.debug("关键帧标记响应");
+                RespKeyframeMark keyframe = (RespKeyframeMark) frame;
+                buf.writeInt(keyframe.getFrameSeq());           // 帧序号(4B)
+                buf.writeByte(keyframe.getAckStatus());         // 确认状态(1B)
+                break;
+
+            case V1.RESP_FILE_FRAME_UPLOAD:
+                log.debug("文件帧上传响应");
+                RespFileFrameUpload videoFrame = (RespFileFrameUpload) frame;
+                buf.writeInt(videoFrame.getFrameSeq());         // 帧序号(4B)
+                buf.writeByte(videoFrame.getReceiveStatus());   // 接收状态(1B)
+                break;
+
+            case V1.RESP_FILE_UPLOAD_END:
+                log.debug("文件上传结束响应");
+                RespFileUploadEnd uploadEnd = (RespFileUploadEnd) frame;
+                buf.writeInt(uploadEnd.getTotalFrames());       // 总帧数(4B)
+                byte[] fileHash = uploadEnd.getFileHash();
+                if (fileHash != null && fileHash.length > 0) {
+                    buf.writeBytes(fileHash);                   // 文件哈希值
+                }
+                break;
+
+            case V1.CMD_FORCE_DISCONNECT:
+                log.warn("强制设备「{}」下线", frame.getDeviceId());
+                break;
+
+            case V1.RESP_FRAME_EXCEPTION:
+                log.warn("帧异常！");
+                break;
+
+            default:
+                log.warn("未知指令类型：0x{}", Integer.toHexString(frame.getCommand() & 0xFF).toUpperCase());
+        }
+
+    }
+}

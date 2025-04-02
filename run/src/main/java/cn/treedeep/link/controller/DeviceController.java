@@ -1,9 +1,10 @@
 package cn.treedeep.link.controller;
 
-import cn.treedeep.link.core.service.CommandResult;
-import cn.treedeep.link.core.model.DeviceInfo;
+import cn.treedeep.link.model.DeviceInfo;
+import cn.treedeep.link.service.CommandResult;
+import cn.treedeep.link.service.DeviceService;
 import cn.treedeep.link.service.SseService;
-import cn.treedeep.link.protocol.v1.service.DeviceService;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +26,13 @@ import java.util.UUID;
 @RequestMapping("/api/device")
 public class DeviceController {
 
-    private final DeviceService commandService;
+    @Resource(name = "p_v1_DeviceService")
+    private DeviceService commandService;
+
     private final SseService sseService;
 
     @Autowired
-    public DeviceController(DeviceService commandService, SseService sseService) {
-        this.commandService = commandService;
+    public DeviceController(SseService sseService) {
         this.sseService = sseService;
     }
 

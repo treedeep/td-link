@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-cn.treedeep.link.config.AutoConfiguration
+cn.treedeep.link.config.CoreAutoConfiguration

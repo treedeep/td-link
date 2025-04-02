@@ -1,6 +1,6 @@
 package cn.treedeep.link.service;
 
-import cn.treedeep.link.core.event.DeviceEvent;
+import cn.treedeep.link.event.DeviceEvent;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;

@@ -1,4 +1,4 @@
-import cn.treedeep.link.core.util.CRC;
+import cn.treedeep.link.util.CRC;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;

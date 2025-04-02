@@ -1,13 +1,16 @@
 package cn.treedeep.link.controller;
 
-import cn.treedeep.link.protocol.v1.device.client.DeviceSimulator;
-import cn.treedeep.link.protocol.v1.device.client.SimulatorManager;
-import cn.treedeep.link.protocol.v1.service.DeviceService;
-import org.springframework.beans.factory.annotation.Autowired;
+import cn.treedeep.link.device.client.DeviceSimulator;
+import cn.treedeep.link.device.client.SimulatorManager;
+import cn.treedeep.link.service.DeviceService;
+import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -23,14 +26,11 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/simulator")
 public class SimulatorController {
 
-    private final DeviceService commandService;
-    private final SimulatorManager simulatorManager;
+    @Resource(name = "p_v1_DeviceService")
+    private DeviceService commandService;
 
-    @Autowired
-    public SimulatorController(SimulatorManager simulatorManager, DeviceService commandService) {
-        this.commandService = commandService;
-        this.simulatorManager = simulatorManager;
-    }
+    @Resource(name = "p_v1_SimulatorManager")
+    private SimulatorManager simulatorManager;
 
 
     /**
@@ -117,9 +117,7 @@ public class SimulatorController {
     /**
      * 四合一功能：创建设备、获取列表、连接设备、绑定任务
      *
-     * @param count     要创建的设备数量
-     * @param minTaskId 任务ID最小值
-     * @param maxTaskId 任务ID最大值
+     * @param count 要创建的设备数量
      * @return 创建的设备和绑定的任务信息
      */
     @GetMapping("/setup-all")
