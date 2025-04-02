@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@Component
+@Component("td_link_SessionManager")
 public class SessionManager {
 
     private final ConcurrentMap<Integer, DeviceSession> sessions = new ConcurrentHashMap<>();

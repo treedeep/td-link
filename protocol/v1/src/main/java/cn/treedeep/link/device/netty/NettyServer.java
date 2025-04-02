@@ -44,10 +44,22 @@ public class NettyServer {
         this.serverHandler = serverHandler;
     }
 
+    @Autowired
+    private org.springframework.context.ApplicationContext applicationContext;
 
     @EventListener(ApplicationReadyEvent.class)
-    public void onApplicationReady() throws InterruptedException {
-        start();
+    public void onApplicationReady() {
+        try {
+            start();
+        } catch (Exception e) {
+            log.error("Netty服务器启动失败，将关闭整个应用", e);
+            // 获取Spring的退出码bean
+            org.springframework.boot.ExitCodeGenerator exitCodeGenerator = () -> 1;
+            // 关闭Spring应用
+            org.springframework.boot.SpringApplication.exit(applicationContext, exitCodeGenerator);
+            // 强制退出JVM
+            System.exit(1);
+        }
     }
 
     public void start() throws InterruptedException {
@@ -95,10 +107,27 @@ public class NettyServer {
                     }
                 });
 
-        ChannelFuture f = b.bind(linkConfig.getServerPort()).sync();
-        log.info("Netty服务器启动成功，监听端口：{}", linkConfig.getServerPort());
-
-        f.channel().closeFuture().sync();
+        try {
+            // 使用await()而不是sync()，这样可以捕获绑定异常
+            ChannelFuture f = b.bind(linkConfig.getServerPort());
+            f.addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    log.info("Netty服务器启动成功，监听端口：{}", linkConfig.getServerPort());
+                } else {
+                    log.error("Netty服务器启动失败，无法绑定端口：{}", linkConfig.getServerPort(), future.cause());
+                    // 关闭Spring应用
+                    org.springframework.boot.ExitCodeGenerator exitCodeGenerator = () -> 1;
+                    org.springframework.boot.SpringApplication.exit(applicationContext, exitCodeGenerator);
+                    System.exit(1);
+                }
+            });
+            
+            // 等待服务器关闭
+            f.channel().closeFuture().sync();
+        } catch (Exception e) {
+            log.error("Netty服务器启动过程中发生异常", e);
+            throw e;
+        }
     }
 
     public void stop() {

@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
  * @author 周广明
  * @since 2025/3/30 09:00
  */
-@Service
+@Service("td_link_DeviceEventPublisher")
 public class DeviceEventPublisher implements ApplicationEventPublisherAware {
 
     private ApplicationEventPublisher publisher;

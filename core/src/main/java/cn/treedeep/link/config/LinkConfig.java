@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
  * 应用配置类
  * 从配置文件中读取应用参数
  */
-@Configuration
+@Configuration("td_link_LinkConfig")
 @ConfigurationProperties(prefix = "link")
 @Data
 public class LinkConfig {

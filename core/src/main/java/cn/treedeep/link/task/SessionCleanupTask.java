@@ -19,7 +19,7 @@ import java.util.Map;
  * 会话清理任务
  * 定期检查并清理过期的设备会话
  */
-@Component
+@Component("td_link_SessionCleanupTask")
 @Slf4j
 public class SessionCleanupTask {
 

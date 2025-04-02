@@ -5,7 +5,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
 
-@Configuration
+@Configuration("td_link_V1AutoConfiguration")
 @EnableAsync
 @ComponentScan(basePackages = {"cn.treedeep.link"})
 @ConfigurationPropertiesScan({"cn.treedeep.link"})

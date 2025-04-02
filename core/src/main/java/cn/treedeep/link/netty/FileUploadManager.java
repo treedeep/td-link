@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2025/3/30 08:20
  */
 @Slf4j
-@Component
+@Component("td_link_FileUploadManager")
 public class FileUploadManager {
 
     @Autowired

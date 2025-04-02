@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Component
+@Component("td_link_ChannelManager")
 public class ChannelManager {
     private final ConcurrentMap<Integer, Channel> deviceChannels = new ConcurrentHashMap<>();
 
