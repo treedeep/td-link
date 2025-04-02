@@ -81,7 +81,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
                 break;
 
             default:
-                log.warn("未知命令：0x{}", Integer.toHexString(frame.getCommand() & 0xFF).toUpperCase());
+                log.warn("未知命令：0x{}", Integer.toHexString(frame.getCommand() & 0xFF));
         }
     }
 

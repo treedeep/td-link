@@ -1,5 +1,6 @@
 package cn.treedeep.link.device.client;
 
+import cn.treedeep.link.protocol.v1.Protocol;
 import cn.treedeep.link.util.DatetimeUtil;
 import cn.treedeep.link.device.protocol.model.report.ReportDeviceConnectionRequest;
 import cn.treedeep.link.device.protocol.model.report.ReportFileFrameUpload;
@@ -11,6 +12,7 @@ import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -152,6 +154,9 @@ public class DeviceSimulator {
         if (uploadLatch != null) {
             uploadLatch.countDown();
         }
+        // 重置帧序号
+        lastAckedFrameSeq = 0;
+
         long duration = System.currentTimeMillis() - startTime;
         String formattedDuration = DatetimeUtil.formatDuration(duration);
         log.info("设备【{}】文件上传完成，总帧数：{}，耗时：{}", deviceId, totalFrames, formattedDuration);
@@ -168,8 +173,9 @@ public class DeviceSimulator {
                         @Override
                         protected void initChannel(SocketChannel ch) {
                             ch.pipeline().addLast(
-                                    new DeviceFrameEncoder(),
+                                    Protocol.lengthFieldBasedFrameDecoder(),
                                     new DeviceFrameDecoder(),
+                                    new DeviceFrameEncoder(),
                                     new SimulatorHandler(DeviceSimulator.this)
                             );
                         }

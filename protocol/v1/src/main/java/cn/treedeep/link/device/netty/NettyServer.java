@@ -3,6 +3,7 @@ package cn.treedeep.link.device.netty;
 import cn.treedeep.link.config.LinkConfig;
 import cn.treedeep.link.device.protocol.codec.FrameDecoder;
 import cn.treedeep.link.device.protocol.codec.FrameEncoder;
+import cn.treedeep.link.protocol.v1.Protocol;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
@@ -14,6 +15,7 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -101,6 +103,7 @@ public class NettyServer {
                     @Override
                     protected void initChannel(SocketChannel ch) {
                         ch.pipeline()
+                                .addLast(Protocol.lengthFieldBasedFrameDecoder())
                                 .addLast(new FrameDecoder())
                                 .addLast(new FrameEncoder())
                                 .addLast(serverHandler);

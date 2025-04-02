@@ -29,8 +29,8 @@ import lombok.Data;
  * @since 2025/3/30 08:53
  */
 @Data
-public abstract class BaseFrame {
-    private byte version = 0x01;
+public abstract class BaseFrame implements Protocol {
+    private byte version = PROTOCOL_VERSION;
     private byte command;
     private int deviceId;
     private short sessionId;
