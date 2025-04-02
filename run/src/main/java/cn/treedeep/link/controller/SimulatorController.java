@@ -121,7 +121,7 @@ public class SimulatorController {
      * @return 创建的设备和绑定的任务信息
      */
     @GetMapping("/setup-all")
-    public ResponseEntity<Map<String, Object>> setupAllDevices(@RequestParam int count) throws InterruptedException {
+    public ResponseEntity<Map<String, Object>> setupAllDevices(@RequestParam int count)  {
 
         List<Map<String, Object>> deviceInfoList = new ArrayList<>();
         ThreadLocalRandom random = ThreadLocalRandom.current();
@@ -143,7 +143,11 @@ public class SimulatorController {
             int taskId = random.nextInt(1, 100 + 1);
 
             // 绑定任务
-            TimeUnit.MILLISECONDS.sleep(1000);
+            try {
+                TimeUnit.MILLISECONDS.sleep(1000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             commandService.deviceBind(deviceId, taskId);
 
             // 收集设备信息
