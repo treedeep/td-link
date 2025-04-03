@@ -41,6 +41,58 @@ public class Pv1Device extends DeviceSimulator {
     private CountDownLatch uploadLatch;
 
     @Override
+    public void connect(String host, int port) {
+        try {
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
+                    .channel(NioSocketChannel.class)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) {
+                            ch.pipeline().addLast(
+                                    Protocol.lengthFieldBasedFrameDecoder(),
+                                    new DeviceFrameDecoder(),
+                                    new DeviceFrameEncoder(),
+                                    new SimulatorHandler(Pv1Device.this)
+                            );
+                        }
+                    });
+
+            ChannelFuture future = bootstrap.connect(host, port).sync();
+            channel = future.channel();
+            status = SimulatorStatus.CONNECTING;
+
+            // 发送注册请求
+            sendRegisterRequest();
+
+        } catch (Exception e) {
+            log.error("设备【{}】连接/注册失败", deviceId, e);
+            disconnect();
+        }
+    }
+
+    @Override
+    protected void sendRegisterRequest() {
+        ReportDeviceConnectionRequest request = new ReportDeviceConnectionRequest();
+        request.setDeviceId(deviceId);
+        request.setVersion(request.getVersion());
+        channel.writeAndFlush(request);
+    }
+
+    @Override
+    public void sendHeartbeat() {
+        if (channel != null && channel.isActive()) {
+            int battery = random.nextInt(100) + 1;
+            ReportHeartbeatPacket heartbeat = new ReportHeartbeatPacket((byte) battery, (byte) 1);
+            heartbeat.setDeviceId(deviceId);
+            heartbeat.setSessionId(sessionId);
+            heartbeat.setTaskId(taskId);
+            channel.writeAndFlush(heartbeat);
+        }
+    }
+
+    @Override
     public void uploadFile(String filePath) {
         if (status != SimulatorStatus.CONNECTED) {
             log.warn("设备【{}】未连接，无法上传文件", deviceId);
@@ -71,6 +123,17 @@ public class Pv1Device extends DeviceSimulator {
                 uploading = false;
             }
         });
+    }
+
+    @Override
+    public void disconnect() {
+        stopHeartbeat();
+        if (channel != null) {
+            channel.close();
+            channel = null;
+        }
+        group.shutdownGracefully();
+        status = SimulatorStatus.DISCONNECTED;
     }
 
     private void uploadVideoFile(File videoFile) throws IOException, InterruptedException {
@@ -142,7 +205,7 @@ public class Pv1Device extends DeviceSimulator {
         }
     }
 
-    void notifyUploadComplete(int totalFrames) {
+    public void notifyUploadComplete(int totalFrames) {
         if (uploadLatch != null) {
             uploadLatch.countDown();
         }
@@ -152,69 +215,6 @@ public class Pv1Device extends DeviceSimulator {
         long duration = System.currentTimeMillis() - startTime;
         String formattedDuration = DatetimeUtil.formatDuration(duration);
         log.info("设备【{}】文件上传完成，总帧数：{}，耗时：{}", deviceId, totalFrames, formattedDuration);
-    }
-
-    @Override
-    public void connect(String host, int port) {
-        try {
-            Bootstrap bootstrap = new Bootstrap();
-            bootstrap.group(group)
-                    .channel(NioSocketChannel.class)
-                    .option(ChannelOption.TCP_NODELAY, true)
-                    .handler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        protected void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(
-                                    Protocol.lengthFieldBasedFrameDecoder(),
-                                    new DeviceFrameDecoder(),
-                                    new DeviceFrameEncoder(),
-                                    new SimulatorHandler(Pv1Device.this)
-                            );
-                        }
-                    });
-
-            ChannelFuture future = bootstrap.connect(host, port).sync();
-            channel = future.channel();
-            status = SimulatorStatus.CONNECTING;
-
-            // 发送注册请求
-            sendRegisterRequest();
-
-        } catch (Exception e) {
-            log.error("设备【{}】连接/注册失败", deviceId, e);
-            disconnect();
-        }
-    }
-
-    @Override
-    public void disconnect() {
-        stopHeartbeat();
-        if (channel != null) {
-            channel.close();
-            channel = null;
-        }
-        group.shutdownGracefully();
-        status = SimulatorStatus.DISCONNECTED;
-    }
-
-    @Override
-    public void sendHeartbeat() {
-        if (channel != null && channel.isActive()) {
-            int battery = random.nextInt(100) + 1;
-            ReportHeartbeatPacket heartbeat = new ReportHeartbeatPacket((byte) battery, (byte) 1);
-            heartbeat.setDeviceId(deviceId);
-            heartbeat.setSessionId(sessionId);
-            heartbeat.setTaskId(taskId);
-            channel.writeAndFlush(heartbeat);
-        }
-    }
-
-    @Override
-    protected void sendRegisterRequest() {
-        ReportDeviceConnectionRequest request = new ReportDeviceConnectionRequest();
-        request.setDeviceId(deviceId);
-        request.setVersion(request.getVersion());
-        channel.writeAndFlush(request);
     }
 
 }
