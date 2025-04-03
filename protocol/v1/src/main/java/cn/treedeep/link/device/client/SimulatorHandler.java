@@ -121,11 +121,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
 
     private void handleHeartbeatCommand(ChannelHandlerContext ctx) {
         // 服务器要求发送心跳
-
-        // 生成1-100随机数
-        int battery = simulator.getRandom().nextInt(100) + 1;
-
-        ReportHeartbeatPacket response = new ReportHeartbeatPacket((byte) battery, (byte) 1);
+        ReportHeartbeatPacket response = new ReportHeartbeatPacket((byte) 100, (byte) 1);
         response.setDeviceId(simulator.getDeviceId());
         response.setSessionId(simulator.getSessionId());
         response.setTaskId(simulator.getTaskId());

@@ -13,7 +13,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import lombok.Data;
 
-import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -35,8 +34,6 @@ public abstract class DeviceSimulator {
     protected final Class<? extends ServerChannel> channelClass;
     protected ScheduledFuture<?> heartbeatFuture;
     protected SimulatorStatus status = SimulatorStatus.CREATED;
-    protected final Random random = new Random();
-
 
     public DeviceSimulator(int deviceId) {
         this.deviceId = deviceId;
@@ -50,12 +47,6 @@ public abstract class DeviceSimulator {
         } else {
             this.group = new NioEventLoopGroup(1);    // 其他平台
             channelClass = NioServerSocketChannel.class;
-        }
-    }
-
-    public void writeData(byte[] data) {
-        if (channel != null && channel.isActive()) {
-            channel.writeAndFlush(data);
         }
     }
 
@@ -75,6 +66,12 @@ public abstract class DeviceSimulator {
         if (heartbeatFuture != null) {
             heartbeatFuture.cancel(true);
             heartbeatFuture = null;
+        }
+    }
+
+    public void writeData(byte[] data) {
+        if (channel != null && channel.isActive()) {
+            channel.writeAndFlush(data);
         }
     }
 
