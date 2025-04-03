@@ -10,14 +10,14 @@ import cn.treedeep.link.device.protocol.model.report.ReportHeartbeatPacket;
 import cn.treedeep.link.device.protocol.model.report.ReportStartRecordingResponse;
 import cn.treedeep.link.device.protocol.model.report.ReportStopRecordingResponse;
 import cn.treedeep.link.device.protocol.model.response.*;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import cn.treedeep.link.simulator.SimulatorStatus;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
+public class SimulatorHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> {
 
     private final Pv1Device simulator;
 
@@ -26,7 +26,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, BaseFrame frame) {
+    protected void channelRead0(ChannelHandlerContext ctx, Pv1BaseFrame frame) {
         switch (frame.getCommand()) {
             case V1.RESP_DEVICE_CONNECTION:
                 handleDeviceConnectionResponse((RespDeviceConnection) frame);

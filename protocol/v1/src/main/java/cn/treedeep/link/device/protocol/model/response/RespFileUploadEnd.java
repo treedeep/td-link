@@ -1,7 +1,7 @@
 package cn.treedeep.link.device.protocol.model.response;
 
 import cn.treedeep.link.device.protocol.V1;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class RespFileUploadEnd extends BaseFrame {
+public class RespFileUploadEnd extends Pv1BaseFrame {
 
     private int totalFrames;    // 总帧数(4B)
     private byte[] fileHash;    // 文件校验(16B)

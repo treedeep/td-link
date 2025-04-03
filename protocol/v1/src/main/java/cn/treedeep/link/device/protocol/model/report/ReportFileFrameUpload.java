@@ -1,7 +1,7 @@
 package cn.treedeep.link.device.protocol.model.report;
 
 import cn.treedeep.link.device.protocol.V1;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import lombok.AllArgsConstructor;
@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class ReportFileFrameUpload extends BaseFrame {
+public class ReportFileFrameUpload extends Pv1BaseFrame {
 
     private int frameSeq;       // 帧序号(4B)
     private ByteBuf frameData;  // 文件数据

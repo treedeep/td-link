@@ -38,7 +38,7 @@ public class Pv1NettyServer implements NettyServer {
     @Getter
     private final boolean primary;
     private final LinkConfig linkConfig;
-    private final ServerHandler serverHandler;
+    private final Pv1ServerHandler serverHandler;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
@@ -50,7 +50,7 @@ public class Pv1NettyServer implements NettyServer {
      * @param linkConfig    LinkConfig对象，用于获取服务器端口号。
      * @param serverHandler ServerHandler对象，用于处理服务器事件。
      */
-    public Pv1NettyServer(boolean primary, LinkConfig linkConfig, ServerHandler serverHandler) {
+    public Pv1NettyServer(boolean primary, LinkConfig linkConfig, Pv1ServerHandler serverHandler) {
         this.primary = primary;
         this.linkConfig = linkConfig;
         this.serverHandler = serverHandler;

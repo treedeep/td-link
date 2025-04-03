@@ -19,10 +19,10 @@ import static cn.treedeep.link.protocol.v1.Protocol.START_FLAG;
  * @since 2025/3/29 15:21
  */
 @Slf4j
-public abstract class BaseFrameEncoder extends MessageToByteEncoder<BaseFrame> {
+public abstract class Pv1FrameEncoder extends MessageToByteEncoder<Pv1BaseFrame> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, BaseFrame msg, ByteBuf out) {
+    protected void encode(ChannelHandlerContext ctx, Pv1BaseFrame msg, ByteBuf out) {
         // 1. 分配临时缓冲区（自动释放）
         ByteBuf buffer = ctx.alloc().compositeBuffer();
         try {
@@ -53,7 +53,7 @@ public abstract class BaseFrameEncoder extends MessageToByteEncoder<BaseFrame> {
     }
 
     // 写入协议头（起始符+版本+占位长度+指令）
-    private void writeHeader(ByteBuf buf, BaseFrame msg) {
+    private void writeHeader(ByteBuf buf, Pv1BaseFrame msg) {
         buf.writeShort(START_FLAG)
                 .writeByte(msg.getVersion())
                 .writeShort(0); // 占位总长度字段
@@ -74,5 +74,5 @@ public abstract class BaseFrameEncoder extends MessageToByteEncoder<BaseFrame> {
     }
 
     // 写入数据域内容
-    protected abstract void writePayload(ByteBuf buf, BaseFrame frame);
+    protected abstract void writePayload(ByteBuf buf, Pv1BaseFrame frame);
 }

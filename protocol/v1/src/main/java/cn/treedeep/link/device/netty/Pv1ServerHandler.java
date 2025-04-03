@@ -9,7 +9,7 @@ import cn.treedeep.link.netty.ChannelManager;
 import cn.treedeep.link.netty.DeviceSession;
 import cn.treedeep.link.netty.FileUploadManager;
 import cn.treedeep.link.netty.SessionManager;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import cn.treedeep.link.util.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -34,7 +34,7 @@ import java.util.Map;
 @Slf4j
 @Component("p_v1_ServerHandler")
 @ChannelHandler.Sharable
-public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
+public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> {
 
     private final SessionManager sessionManager;
     private final ChannelManager channelManager;
@@ -42,10 +42,10 @@ public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
     private final DeviceEventPublisher eventPublisher;
 
     @Autowired
-    public ServerHandler(SessionManager sessionManager,
-                         ChannelManager channelManager,
-                         FileUploadManager fileUploadManager,
-                         DeviceEventPublisher eventPublisher) {
+    public Pv1ServerHandler(SessionManager sessionManager,
+                            ChannelManager channelManager,
+                            FileUploadManager fileUploadManager,
+                            DeviceEventPublisher eventPublisher) {
         this.sessionManager = sessionManager;
         this.channelManager = channelManager;
         this.fileUploadManager = fileUploadManager;
@@ -53,7 +53,7 @@ public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, BaseFrame frame) {
+    protected void channelRead0(ChannelHandlerContext ctx, Pv1BaseFrame frame) {
 
         switch (frame.getCommand()) {
             case V1.REPORT_DEVICE_CONNECTION_REQUEST:

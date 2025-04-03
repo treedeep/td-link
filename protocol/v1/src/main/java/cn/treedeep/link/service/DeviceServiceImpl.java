@@ -4,7 +4,7 @@ import cn.treedeep.link.device.protocol.model.command.*;
 import cn.treedeep.link.model.DeviceInfo;
 import cn.treedeep.link.netty.ChannelManager;
 import cn.treedeep.link.netty.SessionManager;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
@@ -116,7 +116,7 @@ public class DeviceServiceImpl implements DeviceService {
         return commandResult;
     }
 
-    private CommandResult sendCommand(int deviceId, Function<ChannelHandlerContext, BaseFrame> commandBuilder) {
+    private CommandResult sendCommand(int deviceId, Function<ChannelHandlerContext, Pv1BaseFrame> commandBuilder) {
         Channel channel = channelManager.getChannel(deviceId);
         if (channel == null) {
             return CommandResult.failure("设备未连接");
@@ -129,7 +129,7 @@ public class DeviceServiceImpl implements DeviceService {
         }
 
         try {
-            BaseFrame command = commandBuilder.apply(channel.pipeline().context(ChannelHandler.class));
+            Pv1BaseFrame command = commandBuilder.apply(channel.pipeline().context(ChannelHandler.class));
             channel.writeAndFlush(command);
             return CommandResult.success();
         } catch (Exception e) {

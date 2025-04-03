@@ -26,7 +26,7 @@ import static cn.treedeep.link.protocol.v1.Protocol.START_FLAG;
  * </pre>
  */
 @Slf4j
-public abstract class BaseFrameDecoder extends ByteToMessageDecoder {
+public abstract class Pv1FrameDecoder extends ByteToMessageDecoder {
     // 协议头固定长度：起始符(2) + 版本(1) + 长度(2) + 指令(1)
     private static final int HEADER_FIXED_LEN = 6;
     // 基础数据域固定长度：设备ID(4) + 会话ID(2) + 任务ID(4)
@@ -166,7 +166,7 @@ public abstract class BaseFrameDecoder extends ByteToMessageDecoder {
             int taskId = payload.readInt();
 
             // 解析指令特定数据
-            BaseFrame frame = parseByCommand(cmdType, payload);
+            Pv1BaseFrame frame = parseByCommand(cmdType, payload);
             if (frame != null) {
                 frame.setDeviceId(deviceId);
                 frame.setSessionId(sessionId);
@@ -183,7 +183,7 @@ public abstract class BaseFrameDecoder extends ByteToMessageDecoder {
     }
 
     // 根据指令类型解析具体业务数据
-    protected abstract BaseFrame parseByCommand(byte command, ByteBuf payload);
+    protected abstract Pv1BaseFrame parseByCommand(byte command, ByteBuf payload);
 
     // 发送错误响应
     protected abstract void sendErrorResponse(ChannelHandlerContext ctx);

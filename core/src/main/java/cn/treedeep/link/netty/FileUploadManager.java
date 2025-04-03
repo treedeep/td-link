@@ -35,12 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component("td_link_FileUploadManager")
 public class FileUploadManager {
 
-    private final LinkConfig appConfig;
-
     @Autowired
     public FileUploadManager(LinkConfig appConfig) {
-        this.appConfig = appConfig;
-
         // 创建文件保存目录
         this.videoSaveDir = appConfig.getUploadPath();
         this.tempDir = videoSaveDir + "/temp";

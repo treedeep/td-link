@@ -1,7 +1,7 @@
 package cn.treedeep.link.device.protocol.model.command;
 
 import cn.treedeep.link.device.protocol.V1;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -11,7 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class CmdStartRecording extends BaseFrame {
+public class CmdStartRecording extends Pv1BaseFrame {
 
     @Override
     public byte getCommand() {

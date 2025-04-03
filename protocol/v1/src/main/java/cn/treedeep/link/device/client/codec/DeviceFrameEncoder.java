@@ -2,16 +2,16 @@ package cn.treedeep.link.device.client.codec;
 
 import cn.treedeep.link.device.protocol.V1;
 import cn.treedeep.link.device.protocol.model.report.*;
-import cn.treedeep.link.protocol.v1.BaseFrame;
-import cn.treedeep.link.protocol.v1.BaseFrameEncoder;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1FrameEncoder;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public class DeviceFrameEncoder extends BaseFrameEncoder {
+public class DeviceFrameEncoder extends Pv1FrameEncoder {
 
     @Override
-    protected void writePayload(ByteBuf buf, BaseFrame frame) {
+    protected void writePayload(ByteBuf buf, Pv1BaseFrame frame) {
 
         switch (frame.getCommand()) {
             case V1.REPORT_DEVICE_CONNECTION_REQUEST:

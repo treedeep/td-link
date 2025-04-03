@@ -1,7 +1,7 @@
 package cn.treedeep.link.device.protocol.model.report;
 
 import cn.treedeep.link.device.protocol.V1;
-import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -13,7 +13,7 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
-public class ReportHeartbeatPacket extends BaseFrame {
+public class ReportHeartbeatPacket extends Pv1BaseFrame {
 
     private byte battery;   // 1字节电池
     private byte status;    // 1字节状态码
