@@ -3,6 +3,7 @@ package cn.treedeep.link.device.netty;
 import cn.treedeep.link.config.LinkConfig;
 import cn.treedeep.link.device.protocol.codec.FrameDecoder;
 import cn.treedeep.link.device.protocol.codec.FrameEncoder;
+import cn.treedeep.link.netty.NettyServer;
 import cn.treedeep.link.protocol.v1.Protocol;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
@@ -15,55 +16,84 @@ import io.netty.channel.kqueue.KQueueServerSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.boot.ExitCodeGenerator;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
+import org.springframework.context.ApplicationContext;
 
 /**
  * Copyright © 深圳市树深计算机系统有限公司 版权所有
  *
- * <p>NettyServer</p>
+ * <p>NettyServer，SpringBoot启动后 自启动</p>
  *
  * @author 周广明
  * @since 2025/3/29 22:22
  */
 @Slf4j
-@Component("p_v1_NettyServer")
-public class NettyServer {
+public class Pv1NettyServer implements NettyServer {
+
+    @Getter
+    private final boolean primary;
+    private final LinkConfig linkConfig;
+    private final ServerHandler serverHandler;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    private final LinkConfig linkConfig;
-    private final ServerHandler serverHandler;
-
-    @Autowired
-    public NettyServer(LinkConfig linkConfig, ServerHandler serverHandler) {
+    /**
+     * 构造函数，用于初始化NettyServer。
+     *
+     * @param primary       是否主要服务？是，只有Netty服务正常启动整项目才可以启动。
+     * @param linkConfig    LinkConfig对象，用于获取服务器端口号。
+     * @param serverHandler ServerHandler对象，用于处理服务器事件。
+     */
+    public Pv1NettyServer(boolean primary, LinkConfig linkConfig, ServerHandler serverHandler) {
+        this.primary = primary;
         this.linkConfig = linkConfig;
         this.serverHandler = serverHandler;
     }
 
-    @Autowired
-    private org.springframework.context.ApplicationContext applicationContext;
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void onApplicationReady() {
-        try {
-            start();
-        } catch (Exception e) {
-            log.error("Netty服务器启动失败，将关闭整个应用", e);
-            // 获取Spring的退出码bean
-            org.springframework.boot.ExitCodeGenerator exitCodeGenerator = () -> 1;
-            // 关闭Spring应用
-            org.springframework.boot.SpringApplication.exit(applicationContext, exitCodeGenerator);
-            // 强制退出JVM
-            System.exit(1);
-        }
+    @Override
+    public void start() throws InterruptedException {
+        start(null);
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void stop() {
+        System.out.println("Netty：正在关闭服务器...");
+        bossGroup.shutdownGracefully();
+        workerGroup.shutdownGracefully();
+        System.out.println("Netty：服务器已关闭");
+    }
+
+    @Override
+    public void onApplicationEvent(@NotNull ApplicationReadyEvent event) {
+        if (primary) {
+            try {
+                start(event.getApplicationContext());
+            } catch (Exception e) {
+                log.error("Netty服务器启动失败，将关闭整个应用", e);
+                // 获取Spring的退出码bean
+                ExitCodeGenerator exitCodeGenerator = () -> 1;
+                // 关闭Spring应用
+                SpringApplication.exit(event.getApplicationContext(), exitCodeGenerator);
+                // 强制退出JVM
+                System.exit(1);
+            }
+        } else {
+            try {
+                start();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+    }
+
+    private void start(ApplicationContext applicationContext) throws InterruptedException {
         Class<? extends ServerChannel> channelClass;
 
         if (Epoll.isAvailable()) {
@@ -113,13 +143,16 @@ public class NettyServer {
                     log.info("Netty服务器启动成功，监听端口：{}", linkConfig.getServerPort());
                 } else {
                     log.error("Netty服务器启动失败，无法绑定端口：{}", linkConfig.getServerPort(), future.cause());
+
                     // 关闭Spring应用
-                    org.springframework.boot.ExitCodeGenerator exitCodeGenerator = () -> 1;
-                    org.springframework.boot.SpringApplication.exit(applicationContext, exitCodeGenerator);
-                    System.exit(1);
+                    if (applicationContext != null) {
+                        ExitCodeGenerator exitCodeGenerator = () -> 1;
+                        SpringApplication.exit(applicationContext, exitCodeGenerator);
+                        System.exit(1);
+                    }
                 }
             });
-            
+
             // 等待服务器关闭
             f.channel().closeFuture().sync();
         } catch (Exception e) {
@@ -128,10 +161,4 @@ public class NettyServer {
         }
     }
 
-    public void stop() {
-        System.out.println("Netty：正在关闭服务器...");
-        bossGroup.shutdownGracefully();
-        workerGroup.shutdownGracefully();
-        System.out.println("Netty：服务器已关闭");
-    }
 }
