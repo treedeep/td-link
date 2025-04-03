@@ -14,28 +14,15 @@ import java.time.LocalDateTime;
  * @author 周广明
  * @since 2025/3/30 09:00
  */
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-public class DeviceEvent {
-    private String eventType;
-    private int deviceId;
-    private int taskId;
-    private Object data;
-    private LocalDateTime timestamp = LocalDateTime.now();
 
-    public DeviceEvent(String eventType, int deviceId, Object data) {
-        this.eventType = eventType;
-        this.deviceId = deviceId;
-        this.data = data;
-        this.timestamp = LocalDateTime.now();
-    }
+public interface DeviceEvent {
+    String getType();
 
-    public DeviceEvent(String eventType, int deviceId, int taskId, Object data) {
-        this.eventType = eventType;
-        this.deviceId = deviceId;
-        this.taskId = taskId;
-        this.data = data;
-        this.timestamp = LocalDateTime.now();
-    }
+    int getDeviceId();
+
+    int getTaskId();
+
+    Object getData();
+
+    LocalDateTime getTimestamp();
 }

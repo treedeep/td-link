@@ -20,12 +20,19 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
+            <artifactId>spring-boot</artifactId>
+            <scope>compile</scope>
         </dependency>
-
         <dependency>
-            <groupId>com.fasterxml.jackson.datatype</groupId>
-            <artifactId>jackson-datatype-jsr310</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-logging</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>26.0.2</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -39,7 +46,6 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-
 
         <dependency>
             <groupId>io.netty</groupId>
@@ -61,12 +67,7 @@
             <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-kqueue</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.jetbrains</groupId>
-            <artifactId>annotations</artifactId>
-            <version>26.0.2</version>
-            <scope>compile</scope>
-        </dependency>
+
 
         <!--
                 <dependency>

@@ -1,12 +1,10 @@
 package cn.treedeep.link.netty;
 
 import io.netty.channel.Channel;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-@Component("td_link_ChannelManager")
 public class ChannelManager {
     private final ConcurrentMap<Integer, Channel> deviceChannels = new ConcurrentHashMap<>();
 
@@ -17,7 +15,6 @@ public class ChannelManager {
     public Channel getChannel(int deviceId) {
         return deviceChannels.get(deviceId);
     }
-
 
     public Channel removeChannel(int deviceId) {
         return deviceChannels.remove(deviceId);

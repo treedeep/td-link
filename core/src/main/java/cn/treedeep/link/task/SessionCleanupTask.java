@@ -1,5 +1,6 @@
 package cn.treedeep.link.task;
 
+import cn.treedeep.link.event.DefaultDeviceEvent;
 import cn.treedeep.link.event.DeviceEvent;
 import cn.treedeep.link.event.DeviceEventPublisher;
 import cn.treedeep.link.netty.ChannelManager;
@@ -7,9 +8,7 @@ import cn.treedeep.link.netty.DeviceSession;
 import cn.treedeep.link.netty.SessionManager;
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,7 +18,6 @@ import java.util.Map;
  * 会话清理任务
  * 定期检查并清理过期的设备会话
  */
-@Component("td_link_SessionCleanupTask")
 @Slf4j
 public class SessionCleanupTask {
 
@@ -30,7 +28,6 @@ public class SessionCleanupTask {
     // 会话超时时间（分钟）
     private static final int SESSION_TIMEOUT_MINUTES = 10;
 
-    @Autowired
     public SessionCleanupTask(SessionManager sessionManager, ChannelManager channelManager, DeviceEventPublisher eventPublisher) {
         this.sessionManager = sessionManager;
         this.channelManager = channelManager;
@@ -67,7 +64,7 @@ public class SessionCleanupTask {
                 eventData.put("reason", "SESSION_TIMEOUT");
                 eventData.put("lastActiveTime", session.getLastActiveTime().toString());
                 
-                DeviceEvent event = new DeviceEvent(
+                DeviceEvent event = new DefaultDeviceEvent(
                         "SESSION_EXPIRED", 
                         deviceId, 
                         eventData

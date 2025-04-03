@@ -4,8 +4,6 @@ import cn.treedeep.link.config.LinkConfig;
 import cn.treedeep.link.util.FileHashUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +20,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 /**
  * Copyright © 深圳市树深计算机系统有限公司 版权所有
  *
@@ -32,10 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 2025/3/30 08:20
  */
 @Slf4j
-@Component("td_link_FileUploadManager")
 public class FileUploadManager {
 
-    @Autowired
     public FileUploadManager(LinkConfig appConfig) {
         // 创建文件保存目录
         this.videoSaveDir = appConfig.getUploadPath();

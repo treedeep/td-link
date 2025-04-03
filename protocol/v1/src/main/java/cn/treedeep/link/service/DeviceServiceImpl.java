@@ -8,25 +8,20 @@ import cn.treedeep.link.protocol.v1.Pv1BaseFrame;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-@Service("p_v1_DeviceService")
 public class DeviceServiceImpl implements DeviceService {
 
     private final ChannelManager channelManager;
     private final SessionManager sessionManager;
 
-    @Autowired
     public DeviceServiceImpl(ChannelManager channelManager, SessionManager sessionManager) {
         this.channelManager = channelManager;
         this.sessionManager = sessionManager;
     }
-
 
     @Override
     public List<DeviceInfo> getConnectedDevices() {

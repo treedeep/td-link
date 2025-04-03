@@ -1,8 +1,7 @@
 package cn.treedeep.link.device.client;
 
+import cn.treedeep.link.config.LinkConfig;
 import cn.treedeep.link.simulator.DeviceSimulator;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,14 +9,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component("p_v1_SimulatorManager")
 public class SimulatorManager {
 
-    @Value("${link.serverPort:9900}")
-    private int serverPort;
+    private final int serverPort;
 
-    @Value("${link.serverHost:localhost}")
-    private String serverHost;
+    private final String serverHost;
+
+    public SimulatorManager(LinkConfig config) {
+        this.serverPort = config.getServerPort();
+        this.serverHost = config.getServerHost();
+    }
 
     private final Map<Integer, DeviceSimulator> simulators = new ConcurrentHashMap<>();
 

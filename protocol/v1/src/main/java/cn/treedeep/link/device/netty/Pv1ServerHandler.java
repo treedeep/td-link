@@ -3,6 +3,7 @@ package cn.treedeep.link.device.netty;
 import cn.treedeep.link.device.protocol.V1;
 import cn.treedeep.link.device.protocol.model.report.*;
 import cn.treedeep.link.device.protocol.model.response.*;
+import cn.treedeep.link.event.DefaultDeviceEvent;
 import cn.treedeep.link.event.DeviceEvent;
 import cn.treedeep.link.event.DeviceEventPublisher;
 import cn.treedeep.link.netty.ChannelManager;
@@ -17,8 +18,6 @@ import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,7 +31,6 @@ import java.util.Map;
  * @since 2025/3/30 08:20
  */
 @Slf4j
-@Component("p_v1_ServerHandler")
 @ChannelHandler.Sharable
 public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> {
 
@@ -41,7 +39,6 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
     private final FileUploadManager fileUploadManager;
     private final DeviceEventPublisher eventPublisher;
 
-    @Autowired
     public Pv1ServerHandler(SessionManager sessionManager,
                             ChannelManager channelManager,
                             FileUploadManager fileUploadManager,
@@ -92,7 +89,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("status", response.getStatus());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "DEVICE_BIND",
                 response.getDeviceId(),
                 response.getTaskId(),
@@ -107,7 +104,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("status", response.getStatus());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "START_RECORDING",
                 response.getDeviceId(),
                 response.getTaskId(),
@@ -122,7 +119,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("status", response.getStatus());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "STOP_RECORDING",
                 response.getDeviceId(),
                 response.getTaskId(),
@@ -150,7 +147,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("battery", heartbeat.getBattery());
         eventData.put("status", heartbeat.getStatus());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "HEARTBEAT",
                 heartbeat.getDeviceId(),
                 heartbeat.getTaskId(),
@@ -176,7 +173,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("frameSeq", keyframe.getFrameSeq());
         eventData.put("timestamp", keyframe.getTimestamp());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "KEYFRAME_MARK",
                 keyframe.getDeviceId(),
                 keyframe.getTaskId(),
@@ -237,7 +234,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("fileName", result.file().getName());
         eventData.put("MD5", HexUtil.bytesToHex(result.getFileHash()));
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "FILE_UPLOAD_COMPLETE",
                 deviceId,
                 taskId,
@@ -267,7 +264,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("timestamp", System.currentTimeMillis());
         eventData.put("remoteAddress", ctx.channel().remoteAddress().toString());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "DEVICE_CONNECTED",
                 deviceId,
                 request.getTaskId(),
@@ -300,7 +297,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("timestamp", System.currentTimeMillis());
         eventData.put("remoteAddress", channel.remoteAddress().toString());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "DEVICE_DISCONNECTED",
                 deviceId,
                 eventData
@@ -325,7 +322,7 @@ public class Pv1ServerHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
         eventData.put("error", cause.getMessage());
         eventData.put("remoteAddress", channel.remoteAddress().toString());
 
-        DeviceEvent event = new DeviceEvent(
+        DeviceEvent event = new DefaultDeviceEvent(
                 "DEVICE_ERROR",
                 deviceId,
                 eventData

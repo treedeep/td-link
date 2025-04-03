@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/device")
 public class DeviceController {
 
-    @Resource(name = "p_v1_DeviceService")
+    @Resource
     private DeviceService commandService;
 
     private final SseService sseService;

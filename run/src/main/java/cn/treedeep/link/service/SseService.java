@@ -58,7 +58,7 @@ public class SseService {
         emitters.forEach((clientId, emitter) -> {
             try {
                 emitter.send(SseEmitter.event()
-                        .name(event.getEventType())
+                        .name(event.getType())
                         .data(eventData));
             } catch (IOException e) {
                 log.error("向客户端 {} 发送事件失败", clientId, e);
@@ -77,7 +77,7 @@ public class SseService {
         try {
             String eventData = objectMapper.writeValueAsString(event);
             emitter.send(SseEmitter.event()
-                    .name(event.getEventType())
+                    .name(event.getType())
                     .data(eventData));
         } catch (IOException e) {
             log.error("向客户端 {} 发送事件失败", clientId, e);

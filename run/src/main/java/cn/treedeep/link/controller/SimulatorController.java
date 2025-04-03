@@ -26,10 +26,10 @@ import java.util.concurrent.TimeUnit;
 @RequestMapping("/api/simulator")
 public class SimulatorController {
 
-    @Resource(name = "p_v1_DeviceService")
+    @Resource
     private DeviceService commandService;
 
-    @Resource(name = "p_v1_SimulatorManager")
+    @Resource
     private SimulatorManager simulatorManager;
 
 

@@ -22,12 +22,17 @@ public class LinkConfig {
      * 上传文件保存路径
      */
     private String uploadPath = "uploads";
-    
+
+    /**
+     * 服务器地址
+     */
+    private String serverHost = "127.0.0.1";
+
     /**
      * 服务器端口
      */
     private int serverPort = 9900;
-    
+
     /**
      * 心跳间隔（秒）
      */

@@ -1,7 +1,7 @@
 package cn.treedeep.link.netty;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,9 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-@Slf4j
-@Component("td_link_SessionManager")
 public class SessionManager {
+    private static final Logger log = LoggerFactory.getLogger(SessionManager.class);
 
     private final ConcurrentMap<Integer, DeviceSession> sessions = new ConcurrentHashMap<>();
     private final AtomicInteger sessionIdCounter = new AtomicInteger(1);
@@ -77,8 +76,6 @@ public class SessionManager {
 
     /**
      * 更新设备最后活动时间
-     *
-     * @param heartbeat 设备心跳包
      */
     public void updateLastActive(int deviceId, int taskId) {
         DeviceSession session = sessions.get(deviceId);
