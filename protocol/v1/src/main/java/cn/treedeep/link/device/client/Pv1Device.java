@@ -177,11 +177,11 @@ public class Pv1Device extends DeviceSimulator {
             channel = future.channel();
             status = SimulatorStatus.CONNECTING;
 
-            // 发送连接请求
-            sendConnectRequest();
+            // 发送注册请求
+            sendRegisterRequest();
 
         } catch (Exception e) {
-            log.error("设备【{}】连接失败", deviceId, e);
+            log.error("设备【{}】连接/注册失败", deviceId, e);
             disconnect();
         }
     }
@@ -197,33 +197,8 @@ public class Pv1Device extends DeviceSimulator {
         status = SimulatorStatus.DISCONNECTED;
     }
 
-    public void startHeartbeat() {
-        if (heartbeatFuture != null) {
-            return;
-        }
-        heartbeatFuture = group.scheduleAtFixedRate(
-                this::sendHeartbeat,
-                0,
-                30,
-                TimeUnit.SECONDS
-        );
-    }
-
-    public void stopHeartbeat() {
-        if (heartbeatFuture != null) {
-            heartbeatFuture.cancel(true);
-            heartbeatFuture = null;
-        }
-    }
-
-    private void sendConnectRequest() {
-        ReportDeviceConnectionRequest request = new ReportDeviceConnectionRequest();
-        request.setDeviceId(deviceId);
-        request.setVersion(request.getVersion());
-        channel.writeAndFlush(request);
-    }
-
-    private void sendHeartbeat() {
+    @Override
+    public void sendHeartbeat() {
         if (channel != null && channel.isActive()) {
             int battery = random.nextInt(100) + 1;
             ReportHeartbeatPacket heartbeat = new ReportHeartbeatPacket((byte) battery, (byte) 1);
@@ -234,5 +209,12 @@ public class Pv1Device extends DeviceSimulator {
         }
     }
 
+    @Override
+    protected void sendRegisterRequest() {
+        ReportDeviceConnectionRequest request = new ReportDeviceConnectionRequest();
+        request.setDeviceId(deviceId);
+        request.setVersion(request.getVersion());
+        channel.writeAndFlush(request);
+    }
 
 }

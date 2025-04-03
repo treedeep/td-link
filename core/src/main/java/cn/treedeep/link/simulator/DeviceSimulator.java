@@ -15,7 +15,16 @@ import lombok.Data;
 
 import java.util.Random;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
+/**
+ * Copyright © 深圳市树深计算机系统有限公司 版权所有
+ *
+ * <p>终端设备模拟器</p>
+ *
+ * @author 周广明
+ * @since 2025/4/3 11:50
+ */
 @Data
 public abstract class DeviceSimulator {
     protected final int deviceId;
@@ -50,10 +59,34 @@ public abstract class DeviceSimulator {
         }
     }
 
+    public void startHeartbeat() {
+        if (heartbeatFuture != null) {
+            return;
+        }
+        heartbeatFuture = group.scheduleAtFixedRate(
+                this::sendHeartbeat,
+                0,
+                30,
+                TimeUnit.SECONDS
+        );
+    }
+
+    public void stopHeartbeat() {
+        if (heartbeatFuture != null) {
+            heartbeatFuture.cancel(true);
+            heartbeatFuture = null;
+        }
+    }
+
+
     public abstract void connect(String serverHost, int serverPort);
 
-    public abstract void disconnect();
+    protected abstract void sendRegisterRequest();
+
+    public abstract void sendHeartbeat();
 
     public abstract void uploadFile(String filePath);
+
+    public abstract void disconnect();
 
 }
