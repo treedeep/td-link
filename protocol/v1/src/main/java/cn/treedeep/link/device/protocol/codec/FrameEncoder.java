@@ -13,10 +13,25 @@ public class FrameEncoder extends BaseFrameEncoder {
     @Override
     protected void writePayload(ByteBuf buf, BaseFrame frame) {
 
-        // 根据指令类型写入扩展字段
         switch (frame.getCommand()) {
             case V1.CMD_DEVICE_BIND:
                 log.debug("设备绑定下发");
+                break;
+
+            case V1.CMD_START_RECORDING:
+                log.warn("开始录制");
+                break;
+
+            case V1.CMD_STOP_RECORDING:
+                log.warn("停止录制");
+                break;
+
+            case V1.CMD_HEARTBEAT:
+                log.warn("心跳检测");
+                break;
+
+            case V1.CMD_FORCE_DISCONNECT:
+                log.warn("强制设备「{}」下线", frame.getDeviceId());
                 break;
 
             case V1.RESP_DEVICE_CONNECTION:
@@ -53,10 +68,6 @@ public class FrameEncoder extends BaseFrameEncoder {
                 if (fileHash != null && fileHash.length > 0) {
                     buf.writeBytes(fileHash);                   // 文件哈希值
                 }
-                break;
-
-            case V1.CMD_FORCE_DISCONNECT:
-                log.warn("强制设备「{}」下线", frame.getDeviceId());
                 break;
 
             case V1.RESP_FRAME_EXCEPTION:

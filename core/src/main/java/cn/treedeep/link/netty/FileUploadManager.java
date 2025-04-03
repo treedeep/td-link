@@ -1,6 +1,7 @@
 package cn.treedeep.link.netty;
 
 import cn.treedeep.link.config.LinkConfig;
+import cn.treedeep.link.util.FileHashUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
@@ -33,8 +35,12 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component("td_link_FileUploadManager")
 public class FileUploadManager {
 
+    private final LinkConfig appConfig;
+
     @Autowired
     public FileUploadManager(LinkConfig appConfig) {
+        this.appConfig = appConfig;
+
         // 创建文件保存目录
         this.videoSaveDir = appConfig.getUploadPath();
         this.tempDir = videoSaveDir + "/temp";
@@ -96,17 +102,17 @@ public class FileUploadManager {
     /**
      * 缓存文件帧（使用ByteBuf）
      *
-     * @param deviceId  设备ID
-     * @param taskId    任务ID
-     * @param frameSeq  帧序号
-     * @param frameBuf  帧数据ByteBuf
+     * @param deviceId 设备ID
+     * @param taskId   任务ID
+     * @param frameSeq 帧序号
+     * @param frameBuf 帧数据ByteBuf
      */
     public void cacheFileFrame(int deviceId, int taskId, int frameSeq, ByteBuf frameBuf) {
         // 生成缓存键
         String cacheKey = getCacheKey(deviceId, taskId);
-        
+
         int dataLength = frameBuf.readableBytes();
-        
+
         // 根据帧大小决定存储方式
         if (dataLength <= MEMORY_THRESHOLD) {
             // 小帧存储在内存中 - 从ByteBuf中读取数据到byte数组
@@ -115,9 +121,9 @@ public class FileUploadManager {
             int readerIndex = frameBuf.readerIndex();
             // 读取数据到数组
             frameBuf.getBytes(readerIndex, frameData);
-            
+
             smallFramesCache.computeIfAbsent(cacheKey, k -> new ConcurrentHashMap<>()).put(frameSeq, frameData);
-                    
+
             log.debug("内存缓存文件帧(ByteBuf)：【设备ID：{}, 任务ID：{}, 帧序号：{}, 数据长度：{} 字节】",
                     deviceId, taskId, frameSeq, dataLength);
         } else {
@@ -130,14 +136,14 @@ public class FileUploadManager {
             }
         }
     }
-    
+
     /**
      * 将ByteBuf帧数据保存到临时文件
      *
-     * @param deviceId  设备ID
-     * @param taskId    任务ID
-     * @param frameSeq  帧序列号
-     * @param frameBuf  帧数据ByteBuf
+     * @param deviceId 设备ID
+     * @param taskId   任务ID
+     * @param frameSeq 帧序列号
+     * @param frameBuf 帧数据ByteBuf
      * @return 成功保存时返回临时文件的绝对路径，否则返回null
      */
     private String saveTempFrame(int deviceId, int taskId, int frameSeq, ByteBuf frameBuf) {
@@ -149,12 +155,12 @@ public class FileUploadManager {
         try (FileOutputStream fos = new FileOutputStream(tempFile)) {
             // 保存当前读索引
             int readerIndex = frameBuf.readerIndex();
-            
+
             // 将ByteBuf数据写入到临时文件中
             byte[] buffer = new byte[8192]; // 8KB缓冲区
             int remaining = frameBuf.readableBytes();
             int offset = readerIndex;
-            
+
             while (remaining > 0) {
                 int length = Math.min(buffer.length, remaining);
                 frameBuf.getBytes(offset, buffer, 0, length);
@@ -162,7 +168,7 @@ public class FileUploadManager {
                 offset += length;
                 remaining -= length;
             }
-            
+
             // 返回临时文件的绝对路径
             return tempFile.getAbsolutePath();
         } catch (IOException e) {
@@ -205,13 +211,13 @@ public class FileUploadManager {
         }
 
         // 合并所有帧并保存文件文件
-        String fileName = mergeAndSaveFile(deviceId, taskId, smallFrames, frameIndex);
+        File file = mergeAndSaveFile(deviceId, taskId, smallFrames, frameIndex);
 
         // 清理缓存和临时文件
         cleanupResources(cacheKey, frameIndex);
 
-        boolean success = fileName != null;
-        return new FileSaveResult(fileName, totalReceivedFrames, success);
+        boolean success = file != null;
+        return new FileSaveResult(file, totalReceivedFrames, success);
     }
 
     /**
@@ -223,7 +229,7 @@ public class FileUploadManager {
      * @param frameIndex  大帧的集合，键为帧序号，值为帧数据的文件路径
      * @return 保存的文件名，保存失败则返回null
      */
-    private String mergeAndSaveFile(int deviceId, int taskId, Map<Integer, byte[]> smallFrames, SortedMap<Integer, String> frameIndex) {
+    private File mergeAndSaveFile(int deviceId, int taskId, Map<Integer, byte[]> smallFrames, SortedMap<Integer, String> frameIndex) {
         // 生成文件名：设备ID_任务ID_时间戳.mp4
         String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
         String fileName = String.format("%d_%d_%s.mp4", deviceId, taskId, timestamp);
@@ -263,7 +269,7 @@ public class FileUploadManager {
 
             fos.flush();
             log.info("文件文件保存成功：{}", file.getAbsolutePath());
-            return fileName;
+            return file;
         } catch (IOException e) {
             log.error("保存文件文件失败", e);
             return null;
@@ -297,10 +303,10 @@ public class FileUploadManager {
     /**
      * 文件保存结果
      */
-    public record FileSaveResult(String fileName, int frameCount, boolean success) {
+    public record FileSaveResult(File file, int frameCount, boolean success) {
 
         /**
-         * 获取文件名的哈希值
+         * 获取文件的哈希值
          * <p>
          * 此方法用于获取文件名的字节表示，作为文件的简单哈希值
          * 如果文件名为空，则返回null，表示没有文件名或不支持哈希计算
@@ -308,7 +314,16 @@ public class FileUploadManager {
          * @return 文件名的字节数组如果文件名为空，则返回null
          */
         public byte[] getFileHash() {
-            return fileName != null ? fileName.getBytes() : null;
+            if (file == null) {
+                return new byte[0];
+            }
+            // return file.getName().getBytes();
+            try {
+                return FileHashUtil.calculateFileHash(file.getAbsolutePath(), FileHashUtil.HashAlgorithm.MD5);
+            } catch (IOException | NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
         }
     }
+
 }

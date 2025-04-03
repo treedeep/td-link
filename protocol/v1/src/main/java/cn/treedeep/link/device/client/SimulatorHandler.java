@@ -36,12 +36,12 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
                 break;
             case V1.RESP_KEYFRAME_MARK:
                 RespKeyframeMark keyframeResp = (RespKeyframeMark) frame;
-                log.debug("设备 => 设备【{}】收到关键帧标记响应，帧序号：{}", simulator.getDeviceId(), keyframeResp.getFrameSeq());
+                log.debug("模拟器 => 设备【{}】收到关键帧标记响应，帧序号：{}", simulator.getDeviceId(), keyframeResp.getFrameSeq());
                 break;
             case V1.RESP_FILE_FRAME_UPLOAD:
                 RespFileFrameUpload frameResp = (RespFileFrameUpload) frame;
                 simulator.notifyFrameAcked(frameResp.getFrameSeq());
-                log.debug("设备 => 设备【{}】收到文件帧上传响应，帧序号：{}", simulator.getDeviceId(), frameResp.getFrameSeq());
+                log.debug("模拟器 => 设备【{}】收到文件帧上传响应，帧序号：{}", simulator.getDeviceId(), frameResp.getFrameSeq());
                 break;
             case V1.RESP_FILE_UPLOAD_END:
                 RespFileUploadEnd uploadEndResp = (RespFileUploadEnd) frame;
@@ -67,22 +67,22 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
                 handleHeartbeatCommand(ctx);
                 break;
             case V1.CMD_FORCE_DISCONNECT:
-                log.info("设备 => 设备【{}】收到强制断开命令", simulator.getDeviceId());
+                log.info("模拟器 => 设备【{}】收到强制断开命令", simulator.getDeviceId());
                 ctx.close();
                 break;
             case V1.RESP_FRAME_EXCEPTION:
                 RespFrameError error = (RespFrameError) frame;
-                log.warn("设备 => 设备【{}】收到异常帧响应", simulator.getDeviceId());
+                log.warn("模拟器 => 设备【{}】收到异常帧响应", simulator.getDeviceId());
                 break;
             default:
-                log.warn("设备 => 设备【{}】收到未支持的命令类型: 0x{}",
+                log.warn("模拟器 => 设备【{}】收到未支持的命令类型: 0x{}",
                         simulator.getDeviceId(),
                         Integer.toHexString(frame.getCommand() & 0xFF));
         }
     }
 
     private void handleDeviceBind(ChannelHandlerContext ctx, CmdDeviceBind cmd) {
-        log.info("设备 => 设备【{}】收到绑定命令，任务ID：{}", simulator.getDeviceId(), cmd.getTaskId());
+        log.info("模拟器 => 设备【{}】收到绑定命令，任务ID：{}", simulator.getDeviceId(), cmd.getTaskId());
         simulator.setTaskId(cmd.getTaskId());
         ReportDeviceBindResponse response = new ReportDeviceBindResponse((short) 1);
         response.setDeviceId(simulator.getDeviceId());
@@ -92,7 +92,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
     }
 
     private void handleDeviceUnbind(ChannelHandlerContext ctx, CmdDeviceUnBind cmd) {
-        log.info("设备 => 设备【{}】收到解绑命令，任务ID：{}", simulator.getDeviceId(), cmd.getTaskId());
+        log.info("模拟器 => 设备【{}】收到解绑命令，任务ID：{}", simulator.getDeviceId(), cmd.getTaskId());
         simulator.setTaskId(0);
         ReportDeviceBindResponse response = new ReportDeviceBindResponse((byte) 1);
         response.setDeviceId(simulator.getDeviceId());
@@ -102,7 +102,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
     }
 
     private void handleStartRecording(ChannelHandlerContext ctx, CmdStartRecording cmd) {
-        log.info("设备 => 设备【{}】收到开始录制命令", simulator.getDeviceId());
+        log.info("模拟器 => 设备【{}】收到开始录制命令", simulator.getDeviceId());
         ReportStartRecordingResponse response = new ReportStartRecordingResponse((byte) 1);
         response.setDeviceId(simulator.getDeviceId());
         response.setSessionId(simulator.getSessionId());
@@ -111,7 +111,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
     }
 
     private void handleStopRecording(ChannelHandlerContext ctx, CmdStopRecording cmd) {
-        log.info("设备 => 设备【{}】收到停止录制命令", simulator.getDeviceId());
+        log.info("模拟器 => 设备【{}】收到停止录制命令", simulator.getDeviceId());
         ReportStopRecordingResponse response = new ReportStopRecordingResponse((byte) 1);
         response.setDeviceId(simulator.getDeviceId());
         response.setSessionId(simulator.getSessionId());
@@ -137,23 +137,23 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<BaseFrame> {
         simulator.setTaskId(response.getTaskId());
         simulator.setStatus(SimulatorStatus.CONNECTED);  // 更新设备状态为已连接
         simulator.startHeartbeat();
-        log.info("设备 => 设备【{}】连接成功，会话ID：{}", simulator.getDeviceId(), response.getSessionId());
+        log.info("模拟器 => 设备【{}】连接成功，会话ID：{}", simulator.getDeviceId(), response.getSessionId());
     }
 
     private void handleHeartbeatResponse(RespHeartbeat response) {
-        log.debug("设备 => 设备【{}】收到心跳响应，TaskId：{}", simulator.getDeviceId(), response.getTaskId());
+        log.debug("模拟器 => 设备【{}】收到心跳响应，TaskId：{}", simulator.getDeviceId(), response.getTaskId());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
         simulator.setStatus(SimulatorStatus.DISCONNECTED);
         simulator.stopHeartbeat();
-        log.info("设备 => 设备【{}】连接断开", simulator.getDeviceId());
+        log.info("模拟器 => 设备【{}】连接断开", simulator.getDeviceId());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        log.error("设备 => 设备【{}】发生异常", simulator.getDeviceId(), cause);
+        log.error("模拟器 => 设备【{}】发生异常", simulator.getDeviceId(), cause);
         ctx.close();
     }
 }

@@ -27,11 +27,7 @@ public class DeviceFrameDecoder extends BaseFrameDecoder {
                 return new RespKeyframeMark(data.readInt(), data.readByte());
 
             case V1.RESP_FILE_FRAME_UPLOAD:
-                if (data != null) {
-                    return new RespFileFrameUpload(data.readInt(), data.readByte());
-                } else {
-                    return new RespFileFrameUpload(0, (byte) 0);
-                }
+                return new RespFileFrameUpload(data.readInt(), data.readByte());
 
             case V1.RESP_FILE_UPLOAD_END:
                 int frameSeq = data.readInt();
@@ -59,11 +55,11 @@ public class DeviceFrameDecoder extends BaseFrameDecoder {
                 return new CmdForceDisconnect();
 
             case V1.RESP_FRAME_EXCEPTION:
-                log.warn("设备 => 收到异常帧");
+                log.warn("模拟器 => 收到异常帧");
                 return new RespFrameError();
 
             default:
-                log.warn("设备 => 未支持的命令类型: 0x{}", Integer.toHexString(command & 0xFF));
+                log.warn("模拟器 => 未支持的命令类型: 0x{}", Integer.toHexString(command & 0xFF));
                 return null;
         }
     }

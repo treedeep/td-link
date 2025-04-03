@@ -91,12 +91,7 @@ public abstract class BaseFrameDecoder extends ByteToMessageDecoder {
     // 解析协议头
     private FrameHeader parseHeader(ByteBuf in) {
         try {
-            FrameHeader header = new FrameHeader();
-            header.startFlag = in.readShort();
-            header.version = in.readByte();
-            header.totalLength = in.readUnsignedShort();
-            header.command = in.readByte();
-
+            FrameHeader header = new FrameHeader(in.readShort(), in.readByte(), in.readUnsignedShort(), in.readByte());
             log.debug("解析协议头: startFlag=0x{}, version={}, length={}, cmd=0x{}",
                     Integer.toHexString(header.startFlag & 0xFFFF),
                     header.version,
@@ -187,18 +182,20 @@ public abstract class BaseFrameDecoder extends ByteToMessageDecoder {
         }
     }
 
-    // 协议头临时结构
-    private static class FrameHeader {
-        short startFlag;
-        byte version;
-        int totalLength;
-        byte command;
-    }
-
     // 根据指令类型解析具体业务数据
     protected abstract BaseFrame parseByCommand(byte command, ByteBuf payload);
 
     // 发送错误响应
     protected abstract void sendErrorResponse(ChannelHandlerContext ctx);
 
+    /**
+     * Copyright © 深圳市树深计算机系统有限公司 版权所有
+     *
+     * <p>协议头</p>
+     *
+     * @author 周广明
+     * @since 2025/4/2 22:35
+     */
+    private record FrameHeader(short startFlag, byte version, int totalLength, byte command) {
+    }
 }

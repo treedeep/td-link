@@ -5,7 +5,6 @@ import cn.treedeep.link.protocol.v1.BaseFrame;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-
 /**
  * 设备绑定指令。
  * 用于服务端向设备发送绑定请求。

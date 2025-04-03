@@ -61,7 +61,7 @@ public class DeviceFrameEncoder extends BaseFrameEncoder {
                 buf.writeInt(fileUploadEnd.getTotalFrames());
                 break;
             default:
-                log.warn("设备 => 未支持的命令类型: 0x{}", Integer.toHexString(frame.getCommand() & 0xFF));
+                log.warn("模拟器 => 未支持的命令类型: 0x{}", Integer.toHexString(frame.getCommand() & 0xFF));
         }
     }
 }

@@ -7,7 +7,6 @@ public interface Protocol {
     short START_FLAG = (short) 0xAA55;
     short END_FLAG = (short) 0x55AA;
 
-
     static LengthFieldBasedFrameDecoder lengthFieldBasedFrameDecoder() {
         return new LengthFieldBasedFrameDecoder(
                 65535,  // maxFrameLength (2字节无符号最大值为0xFFFF)

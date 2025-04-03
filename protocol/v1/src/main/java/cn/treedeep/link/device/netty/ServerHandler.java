@@ -10,6 +10,7 @@ import cn.treedeep.link.netty.DeviceSession;
 import cn.treedeep.link.netty.FileUploadManager;
 import cn.treedeep.link.netty.SessionManager;
 import cn.treedeep.link.protocol.v1.BaseFrame;
+import cn.treedeep.link.util.HexUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
@@ -228,13 +229,13 @@ public class ServerHandler extends SimpleChannelInboundHandler<BaseFrame> {
         response.setSessionId(end.getSessionId());
 
         ctx.writeAndFlush(response);
-        log.info("文件上传结束：【设备ID：{}, 任务ID：{}, 总帧数：{}, 文件名：{}】", deviceId, taskId, result.frameCount(), result.fileName());
+        log.info("文件上传结束：【设备ID：{}, 任务ID：{}, 总帧数：{}, 文件名：{}】", deviceId, taskId, result.frameCount(), result.file().getName());
 
         // 发布文件上传完成事件
         Map<String, Object> eventData = new HashMap<>();
         eventData.put("totalFrames", result.frameCount());
-        eventData.put("fileName", result.fileName());
-        eventData.put("fileHash", result.getFileHash());
+        eventData.put("fileName", result.file().getName());
+        eventData.put("MD5", HexUtil.bytesToHex(result.getFileHash()));
 
         DeviceEvent event = new DeviceEvent(
                 "FILE_UPLOAD_COMPLETE",
