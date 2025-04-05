@@ -11,7 +11,6 @@ import cn.treedeep.link.netty.NettyServer;
 import cn.treedeep.link.netty.SessionManager;
 import cn.treedeep.link.service.Pv1DeviceService;
 import cn.treedeep.link.service.Pv1DeviceServiceImpl;
-import cn.treedeep.link.task.SessionCleanupTask;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,18 +35,6 @@ public class AppConfig {
                                                 ChannelManager channelManager) {
         return new Pv1DeviceServiceImpl(channelManager, sessionManager);
     }
-
-    /**
-     * 开启会话清理
-     */
-    @Bean
-    public SessionCleanupTask createSessionCleanupTask(LinkConfig linkConfig,
-                                                       SessionManager sessionManager,
-                                                       ChannelManager channelManager,
-                                                       DeviceEventPublisher eventPublisher) {
-        return new SessionCleanupTask(linkConfig, sessionManager, channelManager, eventPublisher);
-    }
-
 
 
     @Bean
