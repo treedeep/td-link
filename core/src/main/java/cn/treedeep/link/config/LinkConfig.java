@@ -12,16 +12,10 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "link")
 @Data
 public class LinkConfig {
-    
-    /**
-     * 会话超时时间（分钟）
-     */
-    private int sessionTimeoutMinutes = 10;
-    
     /**
      * 上传文件保存路径
      */
-    private String uploadPath = "uploads";
+    private String uploadPath = ".link/uploads";
 
     /**
      * 服务器地址
@@ -34,7 +28,29 @@ public class LinkConfig {
     private int serverPort = 9900;
 
     /**
-     * 心跳间隔（秒）
+     * 服务端心跳检测
+     */
+    private boolean serverHeartbeat = false;
+
+    /**
+     * 心跳检测间隔（秒）
      */
     private int heartbeatInterval = 30;
+
+    /**
+     * 清理过期会话
+     */
+    private boolean cleanupSessions = false;
+
+    /**
+     * 清理过期会话间隔（分钟）
+     */
+    private int cleanupExpiredSessions = 5;
+
+    /**
+     * 会话超时时间（分钟）
+     */
+    private int sessionTimeoutMinutes = 10;
+
+
 }

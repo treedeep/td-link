@@ -1,11 +1,14 @@
 package cn.treedeep.link.netty;
 
 import io.netty.channel.Channel;
+import lombok.Getter;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+@Getter
 public class ChannelManager {
+
     private final ConcurrentMap<Integer, Channel> deviceChannels = new ConcurrentHashMap<>();
 
     public void addChannel(int deviceId, Channel channel) {
@@ -40,6 +43,5 @@ public class ChannelManager {
 
         return -1;
     }
-
 
 }

@@ -19,15 +19,15 @@ public class FrameEncoder extends Pv1FrameEncoder {
                 break;
 
             case V1.CMD_START_RECORDING:
-                log.warn("开始录制");
+                log.info("开始录制");
                 break;
 
             case V1.CMD_STOP_RECORDING:
-                log.warn("停止录制");
+                log.info("停止录制");
                 break;
 
             case V1.CMD_HEARTBEAT:
-                log.warn("心跳检测");
+                log.info("心跳检测");
                 break;
 
             case V1.CMD_FORCE_DISCONNECT:

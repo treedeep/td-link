@@ -3,6 +3,7 @@ package cn.treedeep.link.config;
 import cn.treedeep.link.device.client.SimulatorManager;
 import cn.treedeep.link.device.netty.Pv1NettyServer;
 import cn.treedeep.link.device.netty.Pv1ServerHandler;
+import cn.treedeep.link.device.protocol.model.command.CmdHeartbeat;
 import cn.treedeep.link.event.DeviceEventPublisher;
 import cn.treedeep.link.netty.ChannelManager;
 import cn.treedeep.link.netty.FileUploadManager;
@@ -11,6 +12,7 @@ import cn.treedeep.link.netty.SessionManager;
 import cn.treedeep.link.service.DeviceService;
 import cn.treedeep.link.service.DeviceServiceImpl;
 import cn.treedeep.link.task.SessionCleanupTask;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,10 +41,11 @@ public class AppConfig {
      * 开启会话清理
      */
     @Bean
-    public SessionCleanupTask createSessionCleanupTask(SessionManager sessionManager,
+    public SessionCleanupTask createSessionCleanupTask(LinkConfig linkConfig,
+                                                       SessionManager sessionManager,
                                                        ChannelManager channelManager,
                                                        DeviceEventPublisher eventPublisher) {
-        return new SessionCleanupTask(sessionManager, channelManager, eventPublisher);
+        return new SessionCleanupTask(linkConfig, sessionManager, channelManager, eventPublisher);
     }
 
 
@@ -78,6 +81,12 @@ public class AppConfig {
     @Bean
     public SimulatorManager createSimulatorManager(LinkConfig config) {
         return new SimulatorManager(config);
+    }
+
+    @Bean
+    @ConditionalOnProperty(name = "link.heartbeatDetection", havingValue = "true")
+    public CmdHeartbeat createServerHeartbeat() {
+        return new CmdHeartbeat();
     }
 
 }

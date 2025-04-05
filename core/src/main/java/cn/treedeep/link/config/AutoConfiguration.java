@@ -9,5 +9,5 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @EnableAsync
 @ComponentScan(basePackages = {"cn.treedeep.link"})
 @ConfigurationPropertiesScan({"cn.treedeep.link"})
-public class CoreAutoConfiguration {
+public class AutoConfiguration {
 }

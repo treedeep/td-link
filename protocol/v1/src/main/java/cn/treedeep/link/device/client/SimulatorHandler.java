@@ -120,7 +120,7 @@ public class SimulatorHandler extends SimpleChannelInboundHandler<Pv1BaseFrame> 
     }
 
     private void handleHeartbeatCommand(ChannelHandlerContext ctx) {
-        // 服务器要求发送心跳
+        log.warn("模拟器 => 设备【{}】收到服务器要求发送心跳指令", simulator.getDeviceId());
         ReportHeartbeatPacket response = new ReportHeartbeatPacket((byte) 100, (byte) 1);
         response.setDeviceId(simulator.getDeviceId());
         response.setSessionId(simulator.getSessionId());
