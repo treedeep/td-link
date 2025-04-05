@@ -2,7 +2,7 @@ package cn.treedeep.link.controller;
 
 import cn.treedeep.link.model.DeviceInfo;
 import cn.treedeep.link.service.CommandResult;
-import cn.treedeep.link.service.DeviceService;
+import cn.treedeep.link.service.Pv1DeviceService;
 import cn.treedeep.link.service.SseService;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +27,7 @@ import java.util.UUID;
 public class DeviceController {
 
     @Resource
-    private DeviceService commandService;
+    private Pv1DeviceService commandService;
 
     private final SseService sseService;
 

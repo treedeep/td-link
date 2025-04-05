@@ -17,7 +17,6 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -28,6 +27,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Copyright © 深圳市树深计算机系统有限公司 版权所有
+ *
+ * <p>协议V1模拟设备</p>
+ *
+ * @author 周广明
+ * @since 2025/4/5 20:59
+ */
 @Slf4j
 public class Pv1Device extends DeviceSimulator {
 

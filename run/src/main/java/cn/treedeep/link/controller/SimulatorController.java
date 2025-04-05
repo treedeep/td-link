@@ -1,7 +1,7 @@
 package cn.treedeep.link.controller;
 
 import cn.treedeep.link.device.client.SimulatorManager;
-import cn.treedeep.link.service.DeviceService;
+import cn.treedeep.link.service.Pv1DeviceService;
 import cn.treedeep.link.simulator.DeviceSimulator;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 public class SimulatorController {
 
     @Resource
-    private DeviceService commandService;
+    private Pv1DeviceService commandService;
 
     @Resource
     private SimulatorManager simulatorManager;

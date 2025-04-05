@@ -9,8 +9,8 @@ import cn.treedeep.link.netty.ChannelManager;
 import cn.treedeep.link.netty.FileUploadManager;
 import cn.treedeep.link.netty.NettyServer;
 import cn.treedeep.link.netty.SessionManager;
-import cn.treedeep.link.service.DeviceService;
-import cn.treedeep.link.service.DeviceServiceImpl;
+import cn.treedeep.link.service.Pv1DeviceService;
+import cn.treedeep.link.service.Pv1DeviceServiceImpl;
 import cn.treedeep.link.task.SessionCleanupTask;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -32,9 +32,9 @@ public class AppConfig {
      * 创建设备服务
      */
     @Bean
-    public DeviceService createDeviceService(SessionManager sessionManager,
-                                             ChannelManager channelManager) {
-        return new DeviceServiceImpl(channelManager, sessionManager);
+    public Pv1DeviceService createDeviceService(SessionManager sessionManager,
+                                                ChannelManager channelManager) {
+        return new Pv1DeviceServiceImpl(channelManager, sessionManager);
     }
 
     /**

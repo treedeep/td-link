@@ -27,7 +27,7 @@ import org.springframework.context.ApplicationContext;
 /**
  * Copyright © 深圳市树深计算机系统有限公司 版权所有
  *
- * <p>NettyServer，SpringBoot启动后 自启动</p>
+ * <p>NettyServer</p>
  *
  * @author 周广明
  * @since 2025/3/29 22:22

@@ -13,12 +13,12 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class DeviceServiceImpl implements DeviceService {
+public class Pv1DeviceServiceImpl implements Pv1DeviceService {
 
     private final ChannelManager channelManager;
     private final SessionManager sessionManager;
 
-    public DeviceServiceImpl(ChannelManager channelManager, SessionManager sessionManager) {
+    public Pv1DeviceServiceImpl(ChannelManager channelManager, SessionManager sessionManager) {
         this.channelManager = channelManager;
         this.sessionManager = sessionManager;
     }
