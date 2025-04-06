@@ -21,6 +21,17 @@
 
     <properties>
         <java.version>21</java.version>
+        <proguard.version>7.4.1</proguard.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.jetbrains</groupId>
+                <artifactId>annotations</artifactId>
+                <version>26.0.2</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

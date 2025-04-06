@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SimulatorManager {
 
@@ -66,10 +69,33 @@ public class SimulatorManager {
     }
 
     public List<DeviceSimulator> batchCreateSimulators(int startDeviceId, int count) {
-        List<DeviceSimulator> created = new ArrayList<>();
+        List<DeviceSimulator> created = new ArrayList<>(count);
+        ExecutorService executor = Executors.newFixedThreadPool(Math.min(count, Runtime.getRuntime().availableProcessors() * 2));
+        CountDownLatch latch = new CountDownLatch(count);
+    
         for (int i = 0; i < count; i++) {
-            created.add(createSimulator(startDeviceId + i));
+            final int deviceId = startDeviceId + i;
+            executor.submit(() -> {
+                try {
+                    DeviceSimulator simulator = createSimulator(deviceId);
+                    synchronized (created) {
+                        created.add(simulator);
+                    }
+                } finally {
+                    latch.countDown();
+                }
+            });
         }
+    
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("批量创建模拟器被中断", e);
+        } finally {
+            executor.shutdown();
+        }
+    
         return created;
     }
 

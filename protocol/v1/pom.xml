@@ -15,7 +15,6 @@
 
     <properties>
         <java.version>21</java.version>
-        <proguard.version>7.4.1</proguard.version>
     </properties>
 
     <dependencies>
@@ -23,11 +22,17 @@
             <groupId>cn.treedeep.link</groupId>
             <artifactId>td-link-core</artifactId>
             <version>1.0.0</version>
-            <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
             <optional>true</optional>
         </dependency>
 
@@ -35,7 +40,7 @@
 
     <build>
         <plugins>
-            <!--<plugin>
+            <plugin>
                 <groupId>com.github.wvengen</groupId>
                 <artifactId>proguard-maven-plugin</artifactId>
                 <executions>
@@ -61,7 +66,7 @@
                         <version>${proguard.version}</version>
                     </dependency>
                 </dependencies>
-            </plugin>-->
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

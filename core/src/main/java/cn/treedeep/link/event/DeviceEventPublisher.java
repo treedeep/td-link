@@ -28,7 +28,7 @@ public class DeviceEventPublisher {
      * 订阅所有事件
      */
     public void subscribe(Consumer<DeviceEvent> subscriber) {
-        log.info("订阅所有事件");
+        log.debug("订阅所有事件");
         subscribers.add(subscriber);
     }
 
@@ -36,7 +36,7 @@ public class DeviceEventPublisher {
      * 订阅特定类型事件
      */
     public <T extends DeviceEvent> void subscribe(Class<T> eventType, Consumer<T> subscriber) {
-        log.info("订阅【{}】类型事件", eventType.getSimpleName());
+        log.debug("订阅【{}】类型事件", eventType.getSimpleName());
         typedSubscribers.computeIfAbsent(eventType, k -> new CopyOnWriteArrayList<>()).add(subscriber);
     }
 
